@@ -6,6 +6,183 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+enum userType {
+  user
+  admin
+  system
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  email       String       @unique
+  password    String
+  phoneNumber String
+  createdAt   DateTime     @default(now())
+  userType    userType
+  isVerify    Boolean
+  isBanned    Boolean
+  Challenger  Challenger[]
+  UserProfile UserProfile?
+
+  @@map("user")
+}
+
+enum userIdentifyType {
+  cardId
+  passport
+}
+
+model UserProfile {
+  id                  Int              @id @default(autoincrement())
+  firstName           String
+  lastName            String
+  profileImage        String
+  identifyId          userIdentifyType
+  identifyImage       String
+  birthDate           DateTime
+  address             String           @db.VarChar(255)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  personalDescription String           @db.VarChar(255)
+  wallet              Decimal          @db.Decimal(10, 2)
+  user                User             @relation(fields: [userId], references: [id])
+  userId              Int              @unique
+  sender              ChatRoom[]       @relation("sender")
+  reciever            ChatRoom[]       @relation("reciever")
+  owner               Work[]           @relation("owner")
+  worker              Work[]           @relation("worker")
+  showCase            ShowCase[]
+  reported            Report[]         @relation("reported")
+  reportBy            Report[]         @relation("reportBy")
+  Transaction         Transaction[]
+
+  @@map("user_profile")
+}
+
+model ShowCase {
+  id            Int         @id @default(autoincrement())
+  imagePictue   String
+  description   String
+  userProfileId Int
+  userprofile   UserProfile @relation(fields: [userProfileId], references: [id])
+
+  @@map("show_case")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Decimal  @db.Decimal(3, 2)
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@map("review")
+}
+
+model WorkCategories {
+  id       Int    @id @default(autoincrement())
+  category String
+  work     Work[]
+
+  @@map("category")
+}
+
+model Challenger {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  @@map("challenger")
+}
+
+enum statusWork {
+  create
+  adminReview
+  makeDeal
+  acceptDeal
+  onProcess
+  requestSuccess
+  success
+  cancel
+}
+
+model Work {
+  id               Int            @id @default(autoincrement())
+  title            String
+  description      String
+  price            Decimal        @db.Decimal(10, 2)
+  addressLat       String
+  addressLong      String
+  createdAt        DateTime       @default(now())
+  startDate        DateTime
+  endDate          DateTime
+  statusWork       statusWork
+  ownerId          Int
+  owner            UserProfile    @relation("owner", fields: [ownerId], references: [id])
+  workerId         Int?
+  worker           UserProfile?   @relation("worker", fields: [workerId], references: [id])
+  categoryId       Int
+  category         WorkCategories @relation(fields: [categoryId], references: [id])
+  chatRoom         ChatRoom[]
+  workCategoriesId Int
+  Report           Report[]
+  Transaction      Transaction[]
+
+  @@map("work")
+}
+
+model ChatRoom {
+  id         Int         @id @default(autoincrement())
+  createdAt  DateTime    @default(now())
+  workId     Int
+  work       Work        @relation(fields: [workId], references: [id])
+  senderId   Int
+  sender     UserProfile @relation("sender", fields: [senderId], references: [id])
+  recieverId Int
+  reciever   UserProfile @relation("reciever", fields: [recieverId], references: [id])
+
+  @@map("chat_room")
+}
+
+model Report {
+  id         Int         @id @default(autoincrement())
+  detail     String
+  createdAt  DateTime    @default(now())
+  workId     Int
+  work       Work        @relation(fields: [workId], references: [id])
+  reportById Int
+  reportBy   UserProfile @relation("reportBy", fields: [reportById], references: [id])
+  reportedId Int
+  reported   UserProfile @relation("reported", fields: [reportedId], references: [id])
+}
+
+enum transactionType {
+  deposit
+  withdraw
+  transfer
+  recieve
+}
+
+enum transactionStatus {
+  pending
+  approve
+  reject
+}
+
+model Transaction {
+  id            Int               @id @default(autoincrement())
+  type          transactionType
+  amount        Decimal           @db.Decimal(10, 2)
+  slipImage     String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  status        transactionStatus
+  workTitle     String
+  user          UserProfile       @relation(fields: [userProfileId], references: [id])
+  userProfileId Int
+  work          Work              @relation(fields: [workId], references: [id])
+  workId        Int
 }
