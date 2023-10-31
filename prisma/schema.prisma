@@ -25,40 +25,37 @@ model User {
   userType    userType
   isVerify    Boolean
   isBanned    Boolean
-  Challenger  Challenger[]
-  UserProfile UserProfile?
+  userProfile UserProfile?
 
   @@map("user")
 }
 
-enum userIdentifyType {
-  cardId
-  passport
-}
-
 model UserProfile {
-  id                  Int              @id @default(autoincrement())
+  id                  Int           @id @default(autoincrement())
   firstName           String
   lastName            String
   profileImage        String
-  identifyId          userIdentifyType
+  identifyId          String
   identifyImage       String
   birthDate           DateTime
-  address             String           @db.VarChar(255)
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
-  personalDescription String           @db.VarChar(255)
-  wallet              Decimal          @db.Decimal(10, 2)
-  user                User             @relation(fields: [userId], references: [id])
-  userId              Int              @unique
-  sender              ChatRoom[]       @relation("sender")
-  reciever            ChatRoom[]       @relation("reciever")
-  owner               Work[]           @relation("owner")
-  worker              Work[]           @relation("worker")
+  address             String        @db.VarChar(255)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  personalDescription String        @db.VarChar(255)
+  wallet              Decimal       @db.Decimal(10, 2)
+  user                User          @relation(fields: [userId], references: [id])
+  userId              Int           @unique
+  sender              ChatRoom[]    @relation("sender")
+  reciever            ChatRoom[]    @relation("reciever")
+  owner               Work[]        @relation("owner")
+  worker              Work[]        @relation("worker")
   showCase            ShowCase[]
-  reported            Report[]         @relation("reported")
-  reportBy            Report[]         @relation("reportBy")
+  reported            Report[]      @relation("reported")
+  reportBy            Report[]      @relation("reportBy")
   Transaction         Transaction[]
+  Challenger          Challenger[]
+  reviewer            Review[]      @relation("reviewer")
+  reviewBy            Review[]      @relation("reviewBy")
 
   @@map("user_profile")
 }
@@ -74,10 +71,16 @@ model ShowCase {
 }
 
 model Review {
-  id        Int      @id @default(autoincrement())
-  rating    Decimal  @db.Decimal(3, 2)
-  detail    String?
-  createdAt DateTime @default(now())
+  id         Int         @id @default(autoincrement())
+  rating     Decimal     @db.Decimal(3, 2)
+  detail     String?
+  createdAt  DateTime    @default(now())
+  work       Work        @relation(fields: [workId], references: [id])
+  workId     Int
+  reviewer   UserProfile @relation("reviewer", fields: [reviewerId], references: [id])
+  reviewerId Int
+  reviewBy   UserProfile @relation("reviewBy", fields: [reviewById], references: [id])
+  reviewById Int
 
   @@map("review")
 }
@@ -91,9 +94,11 @@ model WorkCategories {
 }
 
 model Challenger {
-  id     Int  @id @default(autoincrement())
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
+  id            Int         @id @default(autoincrement())
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id])
+  userProfileId Int
+  work          Work        @relation(fields: [workId], references: [id])
+  workId        Int
 
   @@map("challenger")
 }
@@ -110,26 +115,27 @@ enum statusWork {
 }
 
 model Work {
-  id               Int            @id @default(autoincrement())
-  title            String
-  description      String
-  price            Decimal        @db.Decimal(10, 2)
-  addressLat       String
-  addressLong      String
-  createdAt        DateTime       @default(now())
-  startDate        DateTime
-  endDate          DateTime
-  statusWork       statusWork
-  ownerId          Int
-  owner            UserProfile    @relation("owner", fields: [ownerId], references: [id])
-  workerId         Int?
-  worker           UserProfile?   @relation("worker", fields: [workerId], references: [id])
-  categoryId       Int
-  category         WorkCategories @relation(fields: [categoryId], references: [id])
-  chatRoom         ChatRoom[]
-  workCategoriesId Int
-  Report           Report[]
-  Transaction      Transaction[]
+  id          Int            @id @default(autoincrement())
+  title       String
+  description String
+  price       Decimal        @db.Decimal(10, 2)
+  addressLat  String
+  addressLong String
+  createdAt   DateTime       @default(now())
+  startDate   DateTime
+  endDate     DateTime?
+  statusWork  statusWork
+  ownerId     Int
+  owner       UserProfile    @relation("owner", fields: [ownerId], references: [id])
+  workerId    Int?
+  worker      UserProfile?   @relation("worker", fields: [workerId], references: [id])
+  categoryId  Int
+  category    WorkCategories @relation(fields: [categoryId], references: [id])
+  chatRoom    ChatRoom[]
+  Report      Report[]
+  Transaction Transaction[]
+  Review      Review[]
+  Challenger  Challenger[]
 
   @@map("work")
 }
