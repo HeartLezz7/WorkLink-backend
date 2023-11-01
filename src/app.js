@@ -6,6 +6,7 @@ const { createServer } = require("http");
 const workRoute = require("./routes/work-route");
 const authRoute = require("./routes/auth-route");
 const adminRoute = require('./routes/admin-route')
+const categoryRoute = require('./routes/category-route')
 
 const app = express();
 const server = createServer(app);
@@ -14,9 +15,10 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 
-app.use('/auth',authRoute)
-app.use('/work',workRoute)
-app.use('/admin',adminRoute)
+app.use('/auth', authRoute)
+app.use('/work', workRoute)
+app.use('/admin', adminRoute)
+// app.use('/category', categoryRoute)
 
 
 const PORT = process.env.PORT || 8080;
