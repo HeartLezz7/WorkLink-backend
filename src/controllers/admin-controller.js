@@ -47,12 +47,10 @@ exports.register = async (req, res, next) => {
     delete createAdmin.password;
     console.log(`log After Delete Password`, createAdmin);
 
-    res
-      .status(200)
-      .json({
-        message: "success Register From /admin/register res createAdmin ",
-        createAdmin,
-      });
+    res.status(200).json({
+      message: "success Register From /admin/register res createAdmin ",
+      createAdmin,
+    });
   } catch (err) {
     next(err);
   }
@@ -84,6 +82,7 @@ exports.login = async (req, res, next) => {
     if (!isMatch) {
       return next(createError("Invalid credential Password", 400));
     }
+
     const payload = { adminId: findAdminLogin.id };
 
     const accessToken = jwt.sign(
@@ -94,12 +93,10 @@ exports.login = async (req, res, next) => {
 
     delete findAdminLogin.password;
 
-    res
-      .status(200)
-      .json({
-        message: "success emailOrPhoneNumber Login From /admin/login",
-        findAdminLogin,
-      });
+    res.status(200).json({
+      message: "success emailOrPhoneNumber Login From /admin/login",
+      findAdminLogin,
+    });
   } catch (err) {
     next(err);
   }
