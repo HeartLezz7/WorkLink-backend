@@ -30,20 +30,20 @@ const loginSchema = Joi.object({
     // email: Joi.string().required(),
     // password: Joi.string().required()
 
-    emailOrphoneNumber: Joi.alternatives([
+    emailOrPhoneNumber: Joi.alternatives([
         Joi.string().email(),
         Joi.string().pattern(/^[0-9]{10}$/)
     ]).required()
         .strip(),
     email: Joi.forbidden()
-        .when('emailOrphoneNumber', {
+        .when('emailOrPhoneNumber', {
             is: Joi.string().email(),
-            then: Joi.string().default(Joi.ref('emailOrphoneNumber'))
+            then: Joi.string().default(Joi.ref('emailOrPhoneNumber'))
         }),
     phoneNumber: Joi.forbidden()
-        .when('emailOrphoneNumber', {
+        .when('emailOrPhoneNumber', {
             is: Joi.string().pattern(/^[0-9]{10}$/),
-            then: Joi.string().default(Joi.ref('emailOrphoneNumber'))
+            then: Joi.string().default(Joi.ref('emailOrPhoneNumber'))
         }),
     password: Joi.string()
         .pattern(/^[a-zA-Z0-9]{6,30}$/)
