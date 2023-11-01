@@ -3,8 +3,9 @@ const validator = (shcema, body, status = 400) => {
   if (error) {
     error.statusCode = status;
     throw error;
+  } else {
+    return value;
   }
-  return value;
 };
 
 module.exports = validator;
