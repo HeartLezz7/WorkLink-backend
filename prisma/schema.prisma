@@ -125,11 +125,11 @@ model Work {
   startDate   DateTime
   endDate     DateTime?
   statusWork  statusWork
-  ownerId     Int?
+  ownerId     Int
   owner       UserProfile?    @relation("owner", fields: [ownerId], references: [id])
   workerId    Int?
   worker      UserProfile?   @relation("worker", fields: [workerId], references: [id])
-  categoryId  Int?
+  categoryId  Int
   category    WorkCategories? @relation(fields: [categoryId], references: [id])
   chatRoom    ChatRoom[]
   Report      Report[]

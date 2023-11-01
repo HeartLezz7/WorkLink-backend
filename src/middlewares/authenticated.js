@@ -23,6 +23,7 @@ module.exports = async (req, res, next) => {
         }
         delete user.password;
         req.user = user;
+        
         next();
     } catch (error) {
         if (error.name === 'TokenExpriedError' || error.name === 'JsonWebTokenError') {
