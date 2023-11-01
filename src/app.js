@@ -14,10 +14,5 @@ app.use(express.json());
 app.use("/auth", authRoute);
 app.use("/work", workRoute);
 
-app.get("/", (req, res) => {
-  console.log("first");
-  res.json({ message: "WorkLink deploy" });
-});
-
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => console.log("server run on port ", PORT));
