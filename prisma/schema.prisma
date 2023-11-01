@@ -115,13 +115,13 @@ enum statusWork {
 }
 
 model Work {
-  id          Int            @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   title       String
   description String
-  price       Decimal        @db.Decimal(10, 2)
+  price       Decimal         @db.Decimal(10, 2)
   addressLat  String
   addressLong String
-  createdAt   DateTime       @default(now())
+  createdAt   DateTime        @default(now())
   startDate   DateTime
   endDate     DateTime?
   statusWork  statusWork

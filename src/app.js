@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const { createServer } = require("http");
+const workRoute = require("./routes/work-route");
+const authRoute = require("./routes/auth-route");
 const adminRoute = require('./routes/admin-route')
 
 const app = express();
@@ -12,12 +14,10 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 
+app.use('/auth',authRoute)
+app.use('/work',workRoute)
 app.use('/admin',adminRoute)
 
-app.get("/", (req, res) => {
-  console.log("first");
-  res.json({ message: "WorkLink deploy" });
-});
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => console.log("server run on port ", PORT));
