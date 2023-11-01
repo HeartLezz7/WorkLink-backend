@@ -5,14 +5,19 @@ const morgan = require("morgan");
 const { createServer } = require("http");
 const workRoute = require("./routes/work-route");
 const authRoute = require("./routes/auth-route");
+const adminRoute = require('./routes/admin-route')
+
 const app = express();
 const server = createServer(app);
 
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
-app.use("/auth", authRoute);
-app.use("/work", workRoute);
+
+app.use('/auth',authRoute)
+app.use('/work',workRoute)
+app.use('/admin',adminRoute)
+
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => console.log("server run on port ", PORT));

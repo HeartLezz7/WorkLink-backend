@@ -18,9 +18,9 @@ enum userType {
 
 model User {
   id          Int          @id @default(autoincrement())
-  email       String       @unique
+  email       String      @unique
   password    String
-  phoneNumber String       @unique
+  phoneNumber String      @unique
   createdAt   DateTime     @default(now())
   userType    userType     @default(user)
   isVerify    Boolean
@@ -128,7 +128,7 @@ model Work {
   ownerId     Int?
   owner       UserProfile?    @relation("owner", fields: [ownerId], references: [id])
   workerId    Int?
-  worker      UserProfile?    @relation("worker", fields: [workerId], references: [id])
+  worker      UserProfile?   @relation("worker", fields: [workerId], references: [id])
   categoryId  Int?
   category    WorkCategories? @relation(fields: [categoryId], references: [id])
   chatRoom    ChatRoom[]
