@@ -7,6 +7,7 @@ const workRoute = require("./routes/work-route");
 const authRoute = require("./routes/auth-route");
 const adminRoute = require('./routes/admin-route')
 const categoryRoute = require('./routes/category-route')
+const transactionRoute = require('./routes/transaction-route')
 
 const app = express();
 const server = createServer(app);
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/auth', authRoute)
 app.use('/work', workRoute)
 app.use('/admin', adminRoute)
+app.use('/transaction',transactionRoute)
 // app.use('/category', categoryRoute)
 
 
