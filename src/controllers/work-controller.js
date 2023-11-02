@@ -15,6 +15,16 @@ exports.createWork = async (req, res, next) => {
         addressLong: "" + data.addressLong,
         startDate: data.startDate + "T00:00:00Z",
         statusWork: STATUS_WORK_CREATE,
+        owner :{
+          connect:{
+            id:req.user.userProfile.id
+          }
+        },
+        category:{
+          connect:{
+            id:+data.id
+          }
+        }
       },
     });
     res.status(201).json({ createWork });

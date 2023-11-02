@@ -14,20 +14,23 @@ exports.createTransaction = async (req, res, next) => {
         amount: data.amount,
         status: TRANSACTIONSTATUS_PENDING,
         workTitle: data.workTitle,
-       user:+req.user.id,
-       userProfileId: req.user.userProfile.id,
-       work:data.id
-      },
-      include:{
-        user :true,
-        work:true
+       userProfile:{
+        connect:{
+            id:req.user.userProfile.id,
+        }
+       } ,
+       work:{
+        connect:{
+            id: data.id
+        }
+       }
       }
     });
     console.log(createTransaction)
     res
       .status(201)
       .json({
-        message: "Success create transaction from /work/transaction",
+        message: "Success create transaction from /transaction",
         createTransaction,
       });
   } catch (error) {

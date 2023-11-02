@@ -47,6 +47,8 @@ exports.createUserProfile = async (req, res, next) => {
         user: true,
       },
     });
+
+  
     res
       .status(201)
       .json({

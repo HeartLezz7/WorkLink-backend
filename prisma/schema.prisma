@@ -126,7 +126,7 @@ model Work {
   endDate     DateTime?
   statusWork  statusWork
   ownerId     Int
-  owner       UserProfile?    @relation("owner", fields: [ownerId], references: [id])
+  owner       UserProfile    @relation("owner", fields: [ownerId], references: [id])
   workerId    Int?
   worker      UserProfile?    @relation("worker", fields: [workerId], references: [id])
   categoryId  Int
