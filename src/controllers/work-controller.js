@@ -12,7 +12,7 @@ exports.createWork = async (req, res, next) => {
         description: data.description,
         price: data.price,
         addressLat: data.addressLat,
-        addressLong: "" + data.addressLong,
+        addressLong: data.addressLong,
         startDate: data.startDate + "T00:00:00Z",
         statusWork: STATUS_WORK_CREATE,
       },
@@ -25,12 +25,7 @@ exports.createWork = async (req, res, next) => {
 
 exports.getAllWork = async (req, res, next) => {
   try {
-    const { value } = req.params;
-    const allWork = await prisma.work.findMany({
-      where: {
-        data: value,
-      },
-    });
+    const allWork = await prisma.work.findMany({});
     console.log(value);
     res.status(201).json({ allWork });
   } catch (err) {
@@ -57,29 +52,26 @@ exports.createworkCategories = async (req, res, next) => {
     console.log(value);
     const workCategories = await prisma.workCategories.create({
       data: {
-        category: value.category
-      }
-    })
-    res.status(201).json({ workCategories })
+        category: value.category,
+      },
+    });
+    res.status(201).json({ workCategories });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 exports.getAllCategories = async (req, res, next) => {
   try {
     const { value } = req.params;
     const allCategories = await prisma.workCategories.findMany({
       where: {
-        data: value
-      }
-    })
+        data: value,
+      },
+    });
     console.log(value);
     res.status(201).json({ allCategories });
-
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
-
-
+};
