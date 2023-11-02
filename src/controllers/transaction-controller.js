@@ -6,10 +6,6 @@ const fs = require('fs/promises')
 exports.createTransaction = async (req, res, next) => {
   try {
     const data = req.body;
-    console.log(data);
-
-    console.log(req.user)
-    console.log(req.user.userProfile.id)
     const createTransaction = await prisma.transaction.create({
       data: {
         type: data.type,
@@ -77,25 +73,19 @@ exports.getTransactionByuserProfileId = async (req, res, next) => {
 
 exports.uploadSlipImage = async (req,res,next) =>{
     try{
-        console.log(req.body)
-        console.log(req.user)
-        console.log('first')
-        console.log(req.file)
         const value = req.params
-        console.log(value)
         const response = {}
         
         if(req.file){
             const url = await upload(req.file.path)
             response.slipImage=url
         }
-        console.log("firstssssssssss",response.slipImage)
+
         const findUserProfileId = await prisma.transaction.findFirst({
             where:{
                 id:+value.id
             }
         })
-        console.log(findUserProfileId)
         const uploadSlip = await prisma.transaction.update({
             where:{
                 id:+value.id
