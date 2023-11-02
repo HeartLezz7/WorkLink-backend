@@ -16,6 +16,7 @@ exports.register = async (req, res, next) => {
     value.password = await bcrypt.hash(value.password, 12);
     value.isVerify = false;
     value.isBanned = false;
+    value.profileImage = "https://res.cloudinary.com/dgtfci0ku/image/upload/v1698914919/rzlbsqmochzva454ttiq.jpg"
 
     const user = await prisma.user.create({
       data: {
