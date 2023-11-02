@@ -35,8 +35,8 @@ exports.createTransaction = async (req, res, next) => {
         message: "Success create transaction from /work/transaction",
         createTransaction,
       });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -73,3 +73,15 @@ exports.getTransactionByuserProfileId = async (req, res, next) => {
     next(error);
   }
 };
+
+
+exports.uploadSlipImage = async (req,res,next) =>{
+    try{
+        console.log(req.body)
+        console.log(req.user)
+        console.log('first')
+
+    }catch(error){
+        next(error)
+    }
+}
