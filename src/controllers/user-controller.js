@@ -1,5 +1,5 @@
 
-
+const fs = require("fs/promises");
 const prisma = require("../models/prisma");
 const {upload} = require('../utils/cloundinary-service')
 
@@ -55,6 +55,13 @@ exports.createUserProfile = async (req, res, next) => {
       });
   } catch (err) {
     next(err);
+  }finally {
+    if (req.files.profileImage) {
+      fs.unlink(req.files.profileImage[0].path);
+    }
+    if (req.files.identifyImage) {
+      fs.unlink(req.files.identifyImage[0].path);
+    }
   }
 };
 
@@ -79,5 +86,9 @@ exports.updateProfile = async (req,res,next) =>{
         res.status(200).json({response})
     }catch(err){
         next(err)
+    }finally {
+      if (req.file) {
+        fs.unlink(req.file.path);
+      }
     }
 }
