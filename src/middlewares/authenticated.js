@@ -1,16 +1,19 @@
-const createError = require('../utils/create-error');
-const jwt = require('jsonwebtoken');
-const prisma = require('../models/prisma');
+const createError = require("../utils/create-error");
+const jwt = require("jsonwebtoken");
+const prisma = require("../models/prisma");
 
 module.exports = async (req, res, next) => {
-    try {
-        const authorization = req.headers.authorization;
-        if (!authorization || !authorization.startsWith('Bearer')) {
-            return next(createError('unauthenticated', 401));
-        }
+  try {
+    const authorization = req.headers.authorization;
+    if (!authorization || !authorization.startsWith("Bearer")) {
+      return next(createError("unauthenticated", 401));
+    }
 
-        const token = authorization.split(' ')[1];
-        const payload = jwt.verify(token, process.env.JWT_SECRET_KEY || 'asdfghjkl');
+    const token = authorization.split(" ")[1];
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_SECRET_KEY || "asdfghjkl"
+    );
 
         const user = await prisma.user.findUnique({
             where: {
