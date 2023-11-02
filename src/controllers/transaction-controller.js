@@ -1,5 +1,7 @@
 const { TRANSACTIONSTATUS_PENDING } = require("../configs/constants");
 const prisma = require("../models/prisma");
+const { upload } = require("../utils/cloundinary-service");
+const fs = require('fs/promises')
 
 exports.createTransaction = async (req, res, next) => {
   try {
@@ -78,8 +80,36 @@ exports.uploadSlipImage = async (req,res,next) =>{
         console.log(req.body)
         console.log(req.user)
         console.log('first')
-
+        console.log(req.file)
+        const value = req.params
+        console.log(value)
+        const response = {}
+        
+        if(req.file){
+            const url = await upload(req.file.path)
+            response.slipImage=url
+        }
+        console.log("firstssssssssss",response.slipImage)
+        const findUserProfileId = await prisma.transaction.findFirst({
+            where:{
+                id:+value.id
+            }
+        })
+        console.log(findUserProfileId)
+        const uploadSlip = await prisma.transaction.update({
+            where:{
+                id:+value.id
+            },
+            data:{
+                slipImage:response.slipImage
+            }
+        })
+        res.status(201).json({"Message : Update SlipImage From transaction/slipImage/:id":uploadSlip})
     }catch(error){
         next(error)
-    }
+    }finally {
+        if (req.file) {
+          fs.unlink(req.file.path);
+        }
+      }
 }

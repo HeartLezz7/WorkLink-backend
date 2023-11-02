@@ -7,7 +7,7 @@ const upload = require('../middlewares/upload')
 
 route.post('/',authenticateMiddleware,transactionController.createTransaction)
 
-route.post('/slipImage',authenticateMiddleware,upload.single('slipImage'),transactionController.uploadSlipImage)
+route.patch('/slipImage/:id',authenticateMiddleware,upload.single('slipImage'),transactionController.uploadSlipImage)
 
 route.get('/alltransaction',authenticateMiddleware,transactionController.getAllTransaction)
 route.get('/alltransaction/:userProfileId',authenticateMiddleware,transactionController.getTransactionByuserProfileId)
