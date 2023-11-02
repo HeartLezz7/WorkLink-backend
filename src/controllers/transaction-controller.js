@@ -6,29 +6,24 @@ exports.createTransaction = async (req, res, next) => {
     const data = req.body;
     console.log(data);
 
+    console.log(req.user)
+    console.log(req.user.userProfile.id)
     const createTransaction = await prisma.transaction.create({
       data: {
         type: data.type,
         amount: data.amount,
         status: TRANSACTIONSTATUS_PENDING,
         workTitle: data.workTitle,
-        user: {
-          connect: {
-            id: data.id,
-          },
-        },
-        work: {
-          connect: {
-            id: data.id,
-          },
-        },
+       user:+req.user.id,
+       userProfileId: req.user.userProfile.id,
+       work:data.id
       },
-      include: {
-        user: true,
-        work: true,
-      },
+      include:{
+        user :true,
+        work:true
+      }
     });
-
+    console.log(createTransaction)
     res
       .status(201)
       .json({

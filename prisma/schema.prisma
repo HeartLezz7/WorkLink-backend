@@ -18,9 +18,9 @@ enum userType {
 
 model User {
   id          Int          @id @default(autoincrement())
-  email       String      @unique
+  email       String       @unique
   password    String
-  phoneNumber String      @unique
+  phoneNumber String       @unique
   createdAt   DateTime     @default(now())
   userType    userType     @default(user)
   isVerify    Boolean
@@ -34,15 +34,15 @@ model UserProfile {
   id                  Int           @id @default(autoincrement())
   firstName           String
   lastName            String
-  profileImage        String
-  identifyId          String
-  identifyImage       String
-  birthDate           DateTime
-  address             String        @db.VarChar(255)
+  profileImage        String        @default("https://res.cloudinary.com/dgtfci0ku/image/upload/v1698914919/rzlbsqmochzva454ttiq.jpg")
+  identifyId          String?
+  identifyImage       String?        
+  birthDate           DateTime?
+  address             String?        @db.VarChar(255)
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
-  personalDescription String        @db.VarChar(255)
-  wallet              Decimal       @db.Decimal(10, 2)
+  personalDescription String?        @db.VarChar(255)
+  wallet              Decimal       @db.Decimal(10, 2)  @default(0)
   user                User          @relation(fields: [userId], references: [id])
   userId              Int           @unique
   sender              ChatRoom[]    @relation("sender")
@@ -128,7 +128,7 @@ model Work {
   ownerId     Int
   owner       UserProfile?    @relation("owner", fields: [ownerId], references: [id])
   workerId    Int?
-  worker      UserProfile?   @relation("worker", fields: [workerId], references: [id])
+  worker      UserProfile?    @relation("worker", fields: [workerId], references: [id])
   categoryId  Int
   category    WorkCategories? @relation(fields: [categoryId], references: [id])
   chatRoom    ChatRoom[]
@@ -187,7 +187,7 @@ model Transaction {
   updatedAt     DateTime          @updatedAt
   status        transactionStatus
   workTitle     String
-  user          UserProfile       @relation(fields: [userProfileId], references: [id])
+  userProfile   UserProfile       @relation(fields: [userProfileId], references: [id])
   userProfileId Int
   work          Work              @relation(fields: [workId], references: [id])
   workId        Int

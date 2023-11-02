@@ -15,8 +15,10 @@ module.exports = async (req, res, next) => {
         const user = await prisma.user.findUnique({
             where: {
                 id: payload.userId
+            },
+            include:{
+                userProfile:true
             }
-
         })
         if (!user) {
             return next(createError('unauthenticated', 401));
