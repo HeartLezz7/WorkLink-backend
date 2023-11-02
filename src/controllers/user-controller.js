@@ -45,6 +45,8 @@ exports.createUserProfile = async (req, res, next) => {
         user: true,
       },
     });
+
+  
     res.status(201).json({
       message:
         "Success create userProfile from /user/createprofile must be FormData",

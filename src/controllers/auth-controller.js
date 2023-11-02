@@ -18,8 +18,31 @@ exports.register = async (req, res, next) => {
     value.isBanned = false;
 
     const user = await prisma.user.create({
-      data: value,
+      data: {
+        email:value.email,
+        password:value.password,
+        phoneNumber:value.phoneNumber,
+        isVerify:value.isVerify,
+        isBanned:value.isBanned
+      }
     });
+
+    const create = await prisma.userProfile.create({
+      data: {
+        firstName: value.firstName,
+        lastName: value.lastName,
+        user: {
+          connect: {
+            id: +user.id,
+          },
+        },
+      },
+      include: {
+        user: true,
+      },
+    });
+
+
     const payload = { userId: user.id };
     const accessToken = jwt.sign(
       payload,
@@ -28,7 +51,9 @@ exports.register = async (req, res, next) => {
     );
 
     delete user.password;
-    res.status(201).json({ accessToken, user });
+    
+   
+    res.status(201).json({ accessToken, user,create });
   } catch (error) {
     console.log(error);
     next(error);

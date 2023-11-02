@@ -21,7 +21,9 @@ const registerSchema = Joi.object({
     // }),
     userType: Joi.string(),
     isVerify: Joi.boolean(),
-    isBanned: Joi.boolean()
+    isBanned: Joi.boolean(),
+    firstName:Joi.string(),
+    lastName:Joi.string()
 });
 
 exports.registerSchema = registerSchema;

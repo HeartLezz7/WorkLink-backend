@@ -15,28 +15,25 @@ module.exports = async (req, res, next) => {
       process.env.JWT_SECRET_KEY || "asdfghjkl"
     );
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: payload.userId,
-      },
-      include: {
-        userProfile: true,
-      },
-    });
-    if (!user) {
-      return next(createError("unauthenticated", 401));
+        const user = await prisma.user.findUnique({
+            where: {
+                id: payload.userId
+            },
+            include:{
+                userProfile:true
+            }
+        })
+        if (!user) {
+            return next(createError('unauthenticated', 401));
+        }
+        delete user.password;
+        req.user = user;
+        
+        next();
+    } catch (error) {
+        if (error.name === 'TokenExpriedError' || error.name === 'JsonWebTokenError') {
+            error.statusCode = 401;
+        }
+        next(error);
     }
-    delete user.password;
-    req.user = user;
-
-    next();
-  } catch (error) {
-    if (
-      error.name === "TokenExpriedError" ||
-      error.name === "JsonWebTokenError"
-    ) {
-      error.statusCode = 401;
-    }
-    next(error);
-  }
-};
+}

@@ -8,6 +8,7 @@ const authRoute = require("./routes/auth-route");
 const adminRoute = require('./routes/admin-route')
 const userRoute = require('./routes/user-route')
 const categoryRoute = require('./routes/category-route')
+const transactionRoute = require('./routes/transaction-route')
 
 const app = express();
 const server = createServer(app);
@@ -20,6 +21,7 @@ app.use('/auth', authRoute)
 app.use('/work', workRoute)
 app.use('/admin', adminRoute)
 app.use('/user',userRoute)
+app.use('/transaction',transactionRoute)
 // app.use('/category', categoryRoute)
 
 
