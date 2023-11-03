@@ -42,32 +42,40 @@ exports.validateProfile = async (req, res, next) => {
   }
 };
 
-// exports.updateProfile = async (req, res, next) => {
-//   try {
-//     const response = {};
+exports.updateProfile = async (req, res, next) => {
+  try {
+    console.log(req.user.userProfile)
+    console.log(req.body)
+    const {firstName , lastName , address ,personalDescription} = req.body
+    const response = {};
 
-//     if (req.file) {
-//       const url = await upload(req.file.path);
-//       response.profileImage = url;
+    if (req.file.path) {
+      const url = await upload(req.file.path);
+      response.profileImage = url;
+    }
 
-//       await prisma.UserProfile.update({
-//         data: {
-//           profileImage: response.profileImage,
-//         },
-//         where: {
-//           id: +req.params.id,
-//         },
-//       });
-//     }
-//     res.status(200).json({ response });
-//   } catch (err) {
-//     next(err);
-//   } finally {
-//     if (req.file) {
-//       fs.unlink(req.file.path);
-//     }
-//   }
-// };
+      const updateProfile = await prisma.UserProfile.update({
+        data: {
+          firstName,
+          lastName,
+          address,
+          personalDescription,
+          profileImage: response.profileImage,
+        },
+        where: {
+          id: +req.user.userProfile.id,
+        },
+      });
+    
+    res.status(200).json({ message:"Success update user profile /user/editprofile",updateProfile });
+  } catch (err) {
+    next(err);
+  } finally {
+    if (req.file) {
+      fs.unlink(req.file.path);
+    }
+  }
+};
 
 exports.createShowCase = async (req, res, next) => {
   try {

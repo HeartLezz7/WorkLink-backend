@@ -8,20 +8,15 @@ router.patch(
   "/validateProfile",
   authenticateMiddleware,
   uploadMiddleware.single("identifyImage"),
-  // uploadMiddleware.
-  // fields([
-  //   { name: "profileImage", maxCount: 1 },
-  //   { name: "identifyImage", maxCount: 1 },
-  // ]),
   userController.validateProfile
 );
 
-// router.patch(
-//   "/uploadprofileimage/:id",
-//   authenticateMiddleware,
-//   uploadMiddleware.single("profileImage"),
-//   userController.updateProfile
-// );
+router.patch(
+  "/editprofile",
+  authenticateMiddleware,
+  uploadMiddleware.single("profileImage"),
+  userController.updateProfile
+);
 
 router.post(
   "/createshowcase",
