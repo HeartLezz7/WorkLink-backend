@@ -3,30 +3,17 @@ const prisma = require("../models/prisma");
 const { upload } = require("../utils/cloundinary-service");
 const { response } = require("express");
 
-exports.updateProfile = async (req, res, next) => {
+exports.validateProfile = async (req, res, next) => {
   try {
-    const value = req.body;
-    console.log(value);
-
+    const value = req.body
     const response = {};
-    // console.log("FILES", req.files.profileImage[0].path);
-    if (req.files.profileImage) {
-      const url = await upload(req.files.profileImage[0].path);
-      response.profileImage = url;
-      console.log("profileImage", response);
-    }
-
-    if (req.files.identifyImage) {
-      const url = await upload(req.files.identifyImage[0].path);
+    if (req.file.path) {
+      const url = await upload(req.file.path);
       response.identifyImage = url;
-      console.log("identifyImage", response);
     }
-
-    console.log(response);
-
-    const create = await prisma.userProfile.update({
+    const validateProfile = await prisma.userProfile.update({
       where:{
-        id:+value.userId
+        id:+req.user.userProfile.id
       },
       data: {
         firstName: value.firstName,
@@ -35,9 +22,6 @@ exports.updateProfile = async (req, res, next) => {
         identifyImage: response.identifyImage,
         birthDate: value.birthDate + "T00:00:00Z",
         address: value.address,
-        personalDescription: value.personalDescription,
-        wallet: value.wallet,
-        profileImage: "" + response.profileImage,
         userId:+value.userId
       },
       include: {
@@ -48,16 +32,13 @@ exports.updateProfile = async (req, res, next) => {
     res.status(201).json({
       message:
         "Success update userProfile from /user/createprofile must be FormData",
-      create,
+        validateProfile,
     });
   } catch (err) {
     next(err);
   } finally {
-    if (req.files.profileImage) {
-      fs.unlink(req.files.profileImage[0].path);
-    }
-    if (req.files.identifyImage) {
-      fs.unlink(req.files.identifyImage[0].path);
+    if (req.file.identifyImage) {
+      fs.unlink(req.file.identifyImage[0].path);
     }
   }
 };

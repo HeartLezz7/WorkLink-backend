@@ -5,13 +5,15 @@ const uploadMiddleware = require("../middlewares/upload");
 const authenticateMiddleware = require("../middlewares/authenticated");
 
 router.patch(
-  "/createprofile",
+  "/validateProfile",
   authenticateMiddleware,
-  uploadMiddleware.fields([
-    { name: "profileImage", maxCount: 1 },
-    { name: "identifyImage", maxCount: 1 },
-  ]),
-  userController.updateProfile
+  uploadMiddleware.single("identifyImage"),
+  // uploadMiddleware.
+  // fields([
+  //   { name: "profileImage", maxCount: 1 },
+  //   { name: "identifyImage", maxCount: 1 },
+  // ]),
+  userController.validateProfile
 );
 
 // router.patch(
