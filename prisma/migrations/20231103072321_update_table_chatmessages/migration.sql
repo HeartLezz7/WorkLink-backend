@@ -21,14 +21,13 @@ ALTER TABLE `chat_room` DROP COLUMN `recieverId`,
     ADD COLUMN `status` ENUM('disable', 'available') NOT NULL DEFAULT 'available';
 
 -- CreateTable
-CREATE TABLE `ChatMessage` (
+CREATE TABLE `chat_messages` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `message` VARCHAR(255) NOT NULL,
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `chatroomId` INTEGER NOT NULL,
+    `chatRoomId` INTEGER NOT NULL,
     `senderId` INTEGER NOT NULL,
     `receiverId` INTEGER NOT NULL,
-    `chatRoomId` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -40,10 +39,10 @@ ALTER TABLE `chat_room` ADD CONSTRAINT `chat_room_createrId_fkey` FOREIGN KEY (`
 ALTER TABLE `chat_room` ADD CONSTRAINT `chat_room_dealerId_fkey` FOREIGN KEY (`dealerId`) REFERENCES `user_profile`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `ChatMessage` ADD CONSTRAINT `ChatMessage_chatRoomId_fkey` FOREIGN KEY (`chatRoomId`) REFERENCES `chat_room`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `chat_messages` ADD CONSTRAINT `chat_messages_chatRoomId_fkey` FOREIGN KEY (`chatRoomId`) REFERENCES `chat_room`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `ChatMessage` ADD CONSTRAINT `ChatMessage_senderId_fkey` FOREIGN KEY (`senderId`) REFERENCES `user_profile`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `chat_messages` ADD CONSTRAINT `chat_messages_senderId_fkey` FOREIGN KEY (`senderId`) REFERENCES `user_profile`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `ChatMessage` ADD CONSTRAINT `ChatMessage_receiverId_fkey` FOREIGN KEY (`receiverId`) REFERENCES `user_profile`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `chat_messages` ADD CONSTRAINT `chat_messages_receiverId_fkey` FOREIGN KEY (`receiverId`) REFERENCES `user_profile`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
