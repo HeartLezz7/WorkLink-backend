@@ -1,5 +1,6 @@
 const { STATUS_WORK_CREATE } = require("../configs/constants");
 const prisma = require("../models/prisma");
+const createError =require('../utils/create-error')
 
 exports.createWork = async (req, res, next) => {
   try {
@@ -84,3 +85,34 @@ exports.getAllCategories = async (req, res, next) => {
     next(error);
   }
 };
+
+
+exports.createChallenger = async (req,res,next) =>{
+  try{
+    const {workid}= req.params
+    console.log(workid)
+    const findWorkid = await prisma.challenger.findFirst({
+      where:{
+        workId:+workid
+      }
+    })
+    
+    if(findWorkid){
+      return next(createError("You have Submit this workID"))
+    }
+
+    // console.log(findWorkid)
+
+    const createChallenger = await prisma.challenger.create({
+      data:{
+        workId:+workid,
+        userProfileId:req.user.userProfile.id
+      }
+    })
+
+
+    res.status(200).json({Message: "Success Create Challenger /work/challenger/:workid",createChallenger})
+  }catch(error){
+    next(error)
+  }
+}
