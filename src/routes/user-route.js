@@ -29,4 +29,11 @@ router.post(
 );
 
 router.get("/showcase", authenticateMiddleware, userController.getAllShowCase);
+
+router.post(
+  "/createreport",
+  authenticateMiddleware,
+  userController.createReport
+);
+
 module.exports = router;

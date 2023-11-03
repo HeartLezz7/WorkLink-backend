@@ -16,22 +16,24 @@ exports.register = async (req, res, next) => {
     value.password = await bcrypt.hash(value.password, 12);
     value.isVerify = false;
     value.isBanned = false;
-    value.profileImage = "https://res.cloudinary.com/dgtfci0ku/image/upload/v1698914919/rzlbsqmochzva454ttiq.jpg"
+    value.profileImage =
+      "https://res.cloudinary.com/dgtfci0ku/image/upload/v1698914919/rzlbsqmochzva454ttiq.jpg";
 
     const user = await prisma.user.create({
       data: {
-        email:value.email,
-        password:value.password,
-        phoneNumber:value.phoneNumber,
-        isVerify:value.isVerify,
-        isBanned:value.isBanned
-      }
+        email: value.email,
+        password: value.password,
+        phoneNumber: value.phoneNumber,
+        isVerify: value.isVerify,
+        isBanned: value.isBanned,
+      },
     });
 
     const create = await prisma.userProfile.create({
       data: {
         firstName: value.firstName,
         lastName: value.lastName,
+        profileImage: value.profileImage,
         user: {
           connect: {
             id: +user.id,
@@ -43,7 +45,6 @@ exports.register = async (req, res, next) => {
       },
     });
 
-
     const payload = { userId: user.id };
     const accessToken = jwt.sign(
       payload,
@@ -52,9 +53,8 @@ exports.register = async (req, res, next) => {
     );
 
     delete user.password;
-    
-   
-    res.status(201).json({ accessToken, user,create });
+
+    res.status(201).json({ accessToken, user, create });
   } catch (error) {
     console.log(error);
     next(error);

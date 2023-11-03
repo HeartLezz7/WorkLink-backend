@@ -46,7 +46,6 @@ exports.createUserProfile = async (req, res, next) => {
       },
     });
 
-  
     res.status(201).json({
       message:
         "Success create userProfile from /user/createprofile must be FormData",
@@ -116,6 +115,23 @@ exports.getAllShowCase = async (req, res, next) => {
   try {
     const getShowCase = await prisma.showCase.findMany({});
     res.status(201).json({ getShowCase });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.createReport = async (req, res, next) => {
+  try {
+    const { value } = req.body;
+    const crateReport = await prisma.report.create({
+      data: {
+        detail: value.detail,
+        workId: value.workId,
+        reportById: req.uesr.userProfile.id,
+        reported: value.reported,
+      },
+    });
+    res.status(201).json({ crateReport });
   } catch (err) {
     next(err);
   }

@@ -1,4 +1,3 @@
-const { date } = require("joi");
 const { STATUS_WORK_CREATE } = require("../configs/constants");
 const prisma = require("../models/prisma");
 
@@ -15,16 +14,16 @@ exports.createWork = async (req, res, next) => {
         addressLong: data.addressLong,
         startDate: data.startDate + "T00:00:00Z",
         statusWork: STATUS_WORK_CREATE,
-        owner :{
-          connect:{
-            id:req.user.userProfile.id
-          }
+        owner: {
+          connect: {
+            id: req.user.userProfile.id,
+          },
         },
-        category:{
-          connect:{
-            id:+data.id
-          }
-        }
+        category: {
+          connect: {
+            id: +data.id,
+          },
+        },
       },
     });
     res.status(201).json({ createWork });
