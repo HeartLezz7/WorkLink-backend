@@ -3,13 +3,13 @@ const prisma = require("../models/prisma");
 const { upload } = require("../utils/cloundinary-service");
 const { response } = require("express");
 
-exports.createUserProfile = async (req, res, next) => {
+exports.updateProfile = async (req, res, next) => {
   try {
     const value = req.body;
     console.log(value);
 
     const response = {};
-    console.log("FILES", req.files.profileImage[0].path);
+    // console.log("FILES", req.files.profileImage[0].path);
     if (req.files.profileImage) {
       const url = await upload(req.files.profileImage[0].path);
       response.profileImage = url;
@@ -24,7 +24,10 @@ exports.createUserProfile = async (req, res, next) => {
 
     console.log(response);
 
-    const create = await prisma.userProfile.create({
+    const create = await prisma.userProfile.update({
+      where:{
+        id:+value.userId
+      },
       data: {
         firstName: value.firstName,
         lastName: value.lastName,
@@ -35,11 +38,7 @@ exports.createUserProfile = async (req, res, next) => {
         personalDescription: value.personalDescription,
         wallet: value.wallet,
         profileImage: "" + response.profileImage,
-        user: {
-          connect: {
-            id: +value.userId,
-          },
-        },
+        userId:+value.userId
       },
       include: {
         user: true,
@@ -48,7 +47,7 @@ exports.createUserProfile = async (req, res, next) => {
 
     res.status(201).json({
       message:
-        "Success create userProfile from /user/createprofile must be FormData",
+        "Success update userProfile from /user/createprofile must be FormData",
       create,
     });
   } catch (err) {
@@ -63,32 +62,32 @@ exports.createUserProfile = async (req, res, next) => {
   }
 };
 
-exports.updateProfile = async (req, res, next) => {
-  try {
-    const response = {};
+// exports.updateProfile = async (req, res, next) => {
+//   try {
+//     const response = {};
 
-    if (req.file) {
-      const url = await upload(req.file.path);
-      response.profileImage = url;
+//     if (req.file) {
+//       const url = await upload(req.file.path);
+//       response.profileImage = url;
 
-      await prisma.UserProfile.update({
-        data: {
-          profileImage: response.profileImage,
-        },
-        where: {
-          id: +req.params.id,
-        },
-      });
-    }
-    res.status(200).json({ response });
-  } catch (err) {
-    next(err);
-  } finally {
-    if (req.file) {
-      fs.unlink(req.file.path);
-    }
-  }
-};
+//       await prisma.UserProfile.update({
+//         data: {
+//           profileImage: response.profileImage,
+//         },
+//         where: {
+//           id: +req.params.id,
+//         },
+//       });
+//     }
+//     res.status(200).json({ response });
+//   } catch (err) {
+//     next(err);
+//   } finally {
+//     if (req.file) {
+//       fs.unlink(req.file.path);
+//     }
+//   }
+// };
 
 exports.createShowCase = async (req, res, next) => {
   try {
