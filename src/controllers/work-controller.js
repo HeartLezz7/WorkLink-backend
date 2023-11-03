@@ -89,7 +89,6 @@ exports.getAllCategories = async (req, res, next) => {
 exports.createChallenger = async (req, res, next) => {
   try {
     const { workid } = req.params;
-    console.log(workid);
     const findWorkid = await prisma.challenger.findFirst({
       where: {
         workId: +workid,
