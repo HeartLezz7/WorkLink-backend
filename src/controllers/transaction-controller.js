@@ -1,7 +1,7 @@
 const { TRANSACTIONSTATUS_PENDING } = require("../configs/constants");
 const prisma = require("../models/prisma");
 const { upload } = require("../utils/cloundinary-service");
-const fs = require('fs/promises')
+const fs = require("fs/promises");
 
 exports.createTransaction = async (req, res, next) => {
   try {
@@ -12,25 +12,15 @@ exports.createTransaction = async (req, res, next) => {
         amount: data.amount,
         status: TRANSACTIONSTATUS_PENDING,
         workTitle: data.workTitle,
-       userProfile:{
-        connect:{
-            id:req.user.userProfile.id,
-        }
-       } ,
-       work:{
-        connect:{
-            id: data.id
-        }
-       }
-      }
+        userProfileId: req.user.userProfile.id,
+        workId: data.workId,
+      },
     });
-    console.log(createTransaction)
-    res
-      .status(201)
-      .json({
-        message: "Success create transaction from /transaction",
-        createTransaction,
-      });
+    console.log(createTransaction);
+    res.status(201).json({
+      message: "Success create transaction from /transaction",
+      createTransaction,
+    });
   } catch (error) {
     next(error);
   }
@@ -39,12 +29,10 @@ exports.createTransaction = async (req, res, next) => {
 exports.getAllTransaction = async (req, res, next) => {
   try {
     const alltransaction = await prisma.transaction.findMany({});
-    res
-      .status(201)
-      .json({
-        message: "Success Get all transaction from /transaction/alltransaction",
-        alltransaction,
-      });
+    res.status(201).json({
+      message: "Success Get all transaction from /transaction/alltransaction",
+      alltransaction,
+    });
   } catch (error) {
     next(error);
   }
@@ -58,48 +46,47 @@ exports.getTransactionByuserProfileId = async (req, res, next) => {
         userProfileId: +userProfileId,
       },
     });
-    res
-      .status(201)
-      .json({
-        message:
-          "Success Get all transaction By userProfileId from /transaction/alltransaction/:userProfileId",
-        transactionByuserProfileId,
-      });
+    res.status(201).json({
+      message:
+        "Success Get all transaction By userProfileId from /transaction/alltransaction/:userProfileId",
+      transactionByuserProfileId,
+    });
   } catch (error) {
     next(error);
   }
 };
 
+exports.uploadSlipImage = async (req, res, next) => {
+  try {
+    const value = req.params;
+    const response = {};
 
-exports.uploadSlipImage = async (req,res,next) =>{
-    try{
-        const value = req.params
-        const response = {}
-        
-        if(req.file){
-            const url = await upload(req.file.path)
-            response.slipImage=url
-        }
+    if (req.file) {
+      const url = await upload(req.file.path);
+      response.slipImage = url;
+    }
 
-        const findUserProfileId = await prisma.transaction.findFirst({
-            where:{
-                id:+value.id
-            }
-        })
-        const uploadSlip = await prisma.transaction.update({
-            where:{
-                id:+value.id
-            },
-            data:{
-                slipImage:response.slipImage
-            }
-        })
-        res.status(201).json({"Message : Update SlipImage From transaction/slipImage/:id":uploadSlip})
-    }catch(error){
-        next(error)
-    }finally {
-        if (req.file) {
-          fs.unlink(req.file.path);
-        }
-      }
-}
+    const findUserProfileId = await prisma.transaction.findFirst({
+      where: {
+        id: +value.id,
+      },
+    });
+    const uploadSlip = await prisma.transaction.update({
+      where: {
+        id: +value.id,
+      },
+      data: {
+        slipImage: response.slipImage,
+      },
+    });
+    res.status(201).json({
+      "Message : Update SlipImage From transaction/slipImage/:id": uploadSlip,
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (req.file) {
+      fs.unlink(req.file.path);
+    }
+  }
+};

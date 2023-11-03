@@ -4,15 +4,15 @@ const userController = require("../controllers/user-controller");
 const uploadMiddleware = require("../middlewares/upload");
 const authenticateMiddleware = require("../middlewares/authenticated");
 
-router.post(
-  "/createprofile",
-  authenticateMiddleware,
-  uploadMiddleware.fields([
-    { name: "profileImage", maxCount: 1 },
-    { name: "identifyImage", maxCount: 1 },
-  ]),
-  userController.createUserProfile
-);
+// router.post(
+//   "/createprofile",
+//   authenticateMiddleware,
+//   uploadMiddleware.fields([
+//     { name: "profileImage", maxCount: 1 },
+//     { name: "identifyImage", maxCount: 1 },
+//   ]),
+//   userController.createUserProfile
+// );
 
 router.patch(
   "/uploadprofileimage/:id",
@@ -34,6 +34,12 @@ router.post(
   "/createreport",
   authenticateMiddleware,
   userController.createReport
+);
+
+router.post(
+  "/createreview",
+  authenticateMiddleware,
+  userController.createReview
 );
 
 module.exports = router;
