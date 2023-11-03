@@ -5,15 +5,15 @@ const { response } = require("express");
 
 exports.validateProfile = async (req, res, next) => {
   try {
-    const value = req.body
+    const value = req.body;
     const response = {};
     if (req.file.path) {
       const url = await upload(req.file.path);
       response.identifyImage = url;
     }
     const validateProfile = await prisma.userProfile.update({
-      where:{
-        id:+req.user.userProfile.id
+      where: {
+        id: +req.user.userProfile.id,
       },
       data: {
         firstName: value.firstName,
@@ -22,23 +22,22 @@ exports.validateProfile = async (req, res, next) => {
         identifyImage: response.identifyImage,
         birthDate: value.birthDate + "T00:00:00Z",
         address: value.address,
-        userId:+value.userId
+        userId: +value.userId,
       },
       include: {
         user: true,
       },
     });
-
     res.status(201).json({
       message:
         "Success update userProfile from /user/createprofile must be FormData",
-        validateProfile,
+      validateProfile,
     });
   } catch (err) {
     next(err);
   } finally {
-    if (req.file.identifyImage) {
-      fs.unlink(req.file.identifyImage[0].path);
+    if (req.file.path) {
+      fs.unlink(req.file.path);
     }
   }
 };
