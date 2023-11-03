@@ -33,4 +33,10 @@ router.post(
   userController.createReport
 );
 
+router.post(
+  "/createreview",
+  authenticateMiddleware,
+  userController.createReview
+);
+
 module.exports = router;

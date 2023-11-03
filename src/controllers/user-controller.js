@@ -95,6 +95,10 @@ exports.createShowCase = async (req, res, next) => {
     res.status(201).json({ createCase });
   } catch (err) {
     next(err);
+  } finally {
+    if (req.file) {
+      fs.unlink(req.file.path);
+    }
   }
 };
 
@@ -109,16 +113,35 @@ exports.getAllShowCase = async (req, res, next) => {
 
 exports.createReport = async (req, res, next) => {
   try {
-    const { value } = req.body;
+    const value = req.body;
+
     const crateReport = await prisma.report.create({
       data: {
         detail: value.detail,
         workId: value.workId,
-        reportById: req.uesr.userProfile.id,
-        reported: value.reported,
+        reportById: req.user.userProfile.id,
+        reportedId: value.reportedId,
       },
     });
     res.status(201).json({ crateReport });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.createReview = async (req, res, next) => {
+  try {
+    const value = req.body;
+    const createReview = await prisma.review.create({
+      data: {
+        rating: value.rating,
+        detail: value.detail,
+        workId: value.workId,
+        reviewerId: req.user.userProfile.id,
+        reviewById: value.reviewById,
+      },
+    });
+    res.status(201).json({ createReview });
   } catch (err) {
     next(err);
   }

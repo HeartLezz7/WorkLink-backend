@@ -14,8 +14,6 @@ exports.register = async (req, res, next) => {
     }
 
     value.password = await bcrypt.hash(value.password, 12);
-    value.isVerify = false;
-    value.isBanned = false;
     value.profileImage =
       "https://res.cloudinary.com/dgtfci0ku/image/upload/v1698914919/rzlbsqmochzva454ttiq.jpg";
 
@@ -24,8 +22,8 @@ exports.register = async (req, res, next) => {
         email: value.email,
         password: value.password,
         phoneNumber: value.phoneNumber,
-        isVerify: value.isVerify,
-        isBanned: value.isBanned,
+        isVerify: false,
+        isBanned: false,
       },
     });
 
@@ -34,11 +32,7 @@ exports.register = async (req, res, next) => {
         firstName: value.firstName,
         lastName: value.lastName,
         profileImage: value.profileImage,
-        user: {
-          connect: {
-            id: +user.id,
-          },
-        },
+        userId: user.id,
       },
       include: {
         user: true,

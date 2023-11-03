@@ -15,16 +15,9 @@ exports.createWork = async (req, res, next) => {
         addressLong: data.addressLong,
         startDate: data.startDate + "T00:00:00Z",
         statusWork: STATUS_WORK_CREATE,
-        owner: {
-          connect: {
-            id: req.user.userProfile.id,
-          },
-        },
-        category: {
-          connect: {
-            id: +data.id,
-          },
-        },
+        ownerId: req.user.userProfile.id,
+        categoryId: +data.categoryId,
+        workImage: data.workImage,
       },
     });
     res.status(201).json({ createWork });
@@ -73,12 +66,7 @@ exports.createworkCategories = async (req, res, next) => {
 
 exports.getAllCategories = async (req, res, next) => {
   try {
-    const { value } = req.params;
-    const allCategories = await prisma.workCategories.findMany({
-      where: {
-        data: value,
-      },
-    });
+    const allCategories = await prisma.workCategories.findMany({});
     console.log(value);
     res.status(201).json({ allCategories });
   } catch (error) {
