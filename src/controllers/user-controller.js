@@ -3,78 +3,71 @@ const prisma = require("../models/prisma");
 const { upload } = require("../utils/cloundinary-service");
 const { response } = require("express");
 
-// exports.createUserProfile = async (req, res, next) => {
-//   try {
-//     const value = req.body;
-//     console.log(value);
-
-//     const response = {};
-//     console.log("FILES", req.files.profileImage[0].path);
-//     if (req.files.profileImage) {
-//       const url = await upload(req.files.profileImage[0].path);
-//       response.profileImage = url;
-//       console.log("profileImage", response);
-//     }
-
-//     if (req.files.identifyImage) {
-//       const url = await upload(req.files.identifyImage[0].path);
-//       response.identifyImage = url;
-//       console.log("identifyImage", response);
-//     }
-
-//     const create = await prisma.userProfile.create({
-//       data: {
-//         firstName: value.firstName,
-//         lastName: value.lastName,
-//         identifyId: value.identifyId,
-//         identifyImage: response.identifyImage,
-//         birthDate: value.birthDate + "T00:00:00Z",
-//         address: value.address,
-//         personalDescription: value.personalDescription,
-//         wallet: value.wallet,
-//         profileImage: "" + response.profileImage,
-//         userId: +value.userId,
-//       },
-//       include: {
-//         user: true,
-//       },
-//     });
-
-//     res.status(201).json({
-//       message:
-//         "Success create userProfile from /user/createprofile must be FormData",
-//       create,
-//     });
-//   } catch (err) {
-//     next(err);
-//   } finally {
-//     if (req.files.profileImage) {
-//       fs.unlink(req.files.profileImage[0].path);
-//     }
-//     if (req.files.identifyImage) {
-//       fs.unlink(req.files.identifyImage[0].path);
-//     }
-//   }
-// };
+exports.validateProfile = async (req, res, next) => {
+  try {
+    const value = req.body;
+    const response = {};
+    if (req.file.path) {
+      const url = await upload(req.file.path);
+      response.identifyImage = url;
+    }
+    const validateProfile = await prisma.userProfile.update({
+      where: {
+        id: +req.user.userProfile.id,
+      },
+      data: {
+        firstName: value.firstName,
+        lastName: value.lastName,
+        identifyId: value.identifyId,
+        identifyImage: response.identifyImage,
+        birthDate: value.birthDate + "T00:00:00Z",
+        address: value.address,
+        userId: +value.userId,
+      },
+      include: {
+        user: true,
+      },
+    });
+    res.status(201).json({
+      message:
+        "Success update userProfile from /user/createprofile must be FormData",
+      validateProfile,
+    });
+  } catch (err) {
+    next(err);
+  } finally {
+    if (req.file.path) {
+      fs.unlink(req.file.path);
+    }
+  }
+};
 
 exports.updateProfile = async (req, res, next) => {
   try {
+    console.log(req.user.userProfile)
+    console.log(req.body)
+    const {firstName , lastName , address ,personalDescription} = req.body
     const response = {};
 
-    if (req.file) {
+    if (req.file.path) {
       const url = await upload(req.file.path);
       response.profileImage = url;
+    }
 
-      await prisma.UserProfile.update({
+      const updateProfile = await prisma.UserProfile.update({
         data: {
+          firstName,
+          lastName,
+          address,
+          personalDescription,
           profileImage: response.profileImage,
         },
         where: {
-          id: +req.params.id,
+          id: +req.user.userProfile.id,
         },
       });
-    }
-    res.status(200).json({ response });
+    
+    res.status(200).json({ message:"Success update user profile /user/editprofile",updateProfile });
   } catch (err) {
     next(err);
   } finally {

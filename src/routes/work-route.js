@@ -8,6 +8,6 @@ route.get("/", workController.getAllWork);
 route.delete("/delete/:id", workController.deleteWork);
 route.post('/createcategories', workController.createworkCategories);
 route.get('/allCategories', workController.getAllCategories);
-
+route.post('/challenger/:workid',authenticated,workController.createChallenger)
 
 module.exports = route;
