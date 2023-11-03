@@ -5,6 +5,7 @@ const { response } = require("express");
 
 exports.validateProfile = async (req, res, next) => {
   try {
+    console.log("first");
     const value = req.body;
     const response = {};
     if (req.file.path) {
@@ -22,7 +23,6 @@ exports.validateProfile = async (req, res, next) => {
         identifyImage: response.identifyImage,
         birthDate: value.birthDate + "T00:00:00Z",
         address: value.address,
-        userId: +value.userId,
       },
       include: {
         user: true,
@@ -44,9 +44,9 @@ exports.validateProfile = async (req, res, next) => {
 
 exports.updateProfile = async (req, res, next) => {
   try {
-    console.log(req.user.userProfile)
-    console.log(req.body)
-    const {firstName , lastName , address ,personalDescription} = req.body
+    console.log(req.user.userProfile);
+    console.log(req.body);
+    const { firstName, lastName, address, personalDescription } = req.body;
     const response = {};
 
     if (req.file.path) {
@@ -54,20 +54,23 @@ exports.updateProfile = async (req, res, next) => {
       response.profileImage = url;
     }
 
-      const updateProfile = await prisma.UserProfile.update({
-        data: {
-          firstName,
-          lastName,
-          address,
-          personalDescription,
-          profileImage: response.profileImage,
-        },
-        where: {
-          id: +req.user.userProfile.id,
-        },
-      });
-    
-    res.status(200).json({ message:"Success update user profile /user/editprofile",updateProfile });
+    const updateProfile = await prisma.UserProfile.update({
+      data: {
+        firstName,
+        lastName,
+        address,
+        personalDescription,
+        profileImage: response.profileImage,
+      },
+      where: {
+        id: +req.user.userProfile.id,
+      },
+    });
+
+    res.status(200).json({
+      message: "Success update user profile /user/editprofile",
+      updateProfile,
+    });
   } catch (err) {
     next(err);
   } finally {

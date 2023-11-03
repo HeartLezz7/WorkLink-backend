@@ -5,7 +5,7 @@ const uploadMiddleware = require("../middlewares/upload");
 const authenticateMiddleware = require("../middlewares/authenticated");
 
 router.patch(
-  "/validateProfile",
+  "/validateprofile",
   authenticateMiddleware,
   uploadMiddleware.single("identifyImage"),
   userController.validateProfile

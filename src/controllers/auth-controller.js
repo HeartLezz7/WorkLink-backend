@@ -27,15 +27,12 @@ exports.register = async (req, res, next) => {
       },
     });
 
-    const create = await prisma.userProfile.create({
+    const userProfile = await prisma.userProfile.create({
       data: {
         firstName: value.firstName,
         lastName: value.lastName,
         profileImage: value.profileImage,
         userId: user.id,
-      },
-      include: {
-        user: true,
       },
     });
 
@@ -48,7 +45,7 @@ exports.register = async (req, res, next) => {
 
     delete user.password;
 
-    res.status(201).json({ accessToken, user, create });
+    res.status(201).json({ accessToken, user });
   } catch (error) {
     console.log(error);
     next(error);
