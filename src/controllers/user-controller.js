@@ -12,9 +12,9 @@ exports.validateProfile = async (req, res, next) => {
       const url = await upload(req.file.path);
       response.identifyImage = url;
     }
-    const validateProfile = await prisma.userProfile.update({
+    const user = await prisma.user.update({
       where: {
-        id: +req.user.userProfile.id,
+        id: +req.user.id,
       },
       data: {
         firstName: value.firstName,
@@ -25,13 +25,14 @@ exports.validateProfile = async (req, res, next) => {
         address: value.address,
       },
       include: {
-        user: true,
+        authUser: true,
       },
     });
+    user.authUser = user.authUser[0];
     res.status(201).json({
       message:
         "Success update userProfile from /user/createprofile must be FormData",
-      validateProfile,
+      user,
     });
   } catch (err) {
     next(err);

@@ -2,6 +2,7 @@ const createError = require("../utils/create-error");
 const jwt = require("jsonwebtoken");
 const prisma = require("../models/prisma");
 
+// hong edit complete
 module.exports = async (req, res, next) => {
   try {
     const authorization = req.headers.authorization;
@@ -14,19 +15,21 @@ module.exports = async (req, res, next) => {
       token,
       process.env.JWT_SECRET_KEY || "asdfghjkl"
     );
+    console.log(payload);
 
     const user = await prisma.user.findUnique({
       where: {
         id: payload.userId,
       },
       include: {
-        userProfile: true,
+        authUser: true,
       },
     });
     if (!user) {
       return next(createError("unauthenticated", 401));
     }
-    delete user.password;
+    user.authUser = user.authUser[0];
+    delete user.authUser.password;
     req.user = user;
 
     next();
