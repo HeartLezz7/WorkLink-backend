@@ -5,11 +5,13 @@ const uploadMiddleware = require("../middlewares/upload");
 const authenticateMiddleware = require("../middlewares/authenticated");
 
 router.patch(
-  "/validateprofile",
+  "/validateuser",
   authenticateMiddleware,
   uploadMiddleware.single("identifyImage"),
-  userController.validateProfile
+  userController.validateUser
 );
+
+router.get("/getuserprofile/:userId", userController.getUserProfileById);
 
 router.patch(
   "/editprofile",

@@ -1,11 +1,10 @@
 const fs = require("fs/promises");
 const prisma = require("../models/prisma");
 const { upload } = require("../utils/cloundinary-service");
-const { response } = require("express");
 
-exports.validateProfile = async (req, res, next) => {
+// hong edit complete
+exports.validateUser = async (req, res, next) => {
   try {
-    console.log("first");
     const value = req.body;
     const response = {};
     if (req.file.path) {
@@ -29,6 +28,7 @@ exports.validateProfile = async (req, res, next) => {
       },
     });
     user.authUser = user.authUser[0];
+    delete user.authUser.password;
     res.status(201).json({
       message:
         "Success update userProfile from /user/createprofile must be FormData",
@@ -42,31 +42,52 @@ exports.validateProfile = async (req, res, next) => {
     }
   }
 };
-
-exports.updateProfile = async (req, res, next) => {
+// hong edit complete
+exports.getUserProfileById = async (req, res, next) => {
   try {
-    console.log(req.user.userProfile);
-    console.log(req.body);
-    const { firstName, lastName, address, personalDescription } = req.body;
-    const response = {};
-
-    if (req.file.path) {
-      const url = await upload(req.file.path);
-      response.profileImage = url;
-    }
-
-    const updateProfile = await prisma.UserProfile.update({
-      data: {
-        firstName,
-        lastName,
-        address,
-        personalDescription,
-        profileImage: response.profileImage,
-      },
+    const profileData = await prisma.user.findUnique({
       where: {
-        id: +req.user.userProfile.id,
+        id: +req.params.userId,
+      },
+      include: {
+        authUser: {
+          select: {
+            isBanned: true,
+            isVerify: true,
+          },
+        },
       },
     });
+    profileData.authUser = profileData.authUser[0];
+    res.status(200).json({ profileData });
+  } catch (err) {
+    next(err);
+  }
+};
+// hong edit complete
+exports.updateProfile = async (req, res, next) => {
+  try {
+    // console.log(req.user.userProfile);
+    // console.log(req.body);
+
+    if (req.file?.path) {
+      console.log(req.file.path);
+      const url = await upload(req.file.path);
+
+      req.body.profileImage = url;
+    }
+
+    const updateProfile = await prisma.user.update({
+      where: {
+        id: +req.user.id,
+      },
+      data: req.body,
+      include: {
+        authUser: true,
+      },
+    });
+    updateProfile.authUser = user.authUser[0];
+    delete updateProfile.authUser.password;
 
     res.status(200).json({
       message: "Success update user profile /user/editprofile",

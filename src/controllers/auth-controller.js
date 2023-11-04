@@ -57,7 +57,7 @@ exports.register = async (req, res, next) => {
   }
 };
 
-// test process
+// hong edit complete
 exports.login = async (req, res, next) => {
   try {
     const value = validator(loginSchema, req.body, 401);
@@ -99,7 +99,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
-// test process
+// hong edit complete
 exports.getMe = async (req, res, next) => {
   res.status(200).json({ user: req.user });
 };
