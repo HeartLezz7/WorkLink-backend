@@ -86,7 +86,7 @@ exports.updateProfile = async (req, res, next) => {
         authUser: true,
       },
     });
-    updateProfile.authUser = user.authUser[0];
+    updateProfile.authUser = updateProfile.authUser[0];
     delete updateProfile.authUser.password;
 
     res.status(200).json({
