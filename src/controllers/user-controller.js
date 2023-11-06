@@ -24,7 +24,12 @@ exports.validateUser = async (req, res, next) => {
         address: value.address,
         authUser: {
           update: {
-            ververifyStatus: pending,
+            where: {
+              id: req.user.authUser.id,
+            },
+            data: {
+              verifyStatus: "pending",
+            },
           },
         },
       },
@@ -58,7 +63,7 @@ exports.getUserProfileById = async (req, res, next) => {
         authUser: {
           select: {
             isBanned: true,
-            isVerify: true,
+            verifyStatus: true,
           },
         },
       },
