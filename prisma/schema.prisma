@@ -16,17 +16,23 @@ enum userType {
   system
 }
 
+enum verifyStatus {
+  notVerify
+  pending
+  verify
+}
+
 model AuthUser {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  password    String
-  phoneNumber String   @unique
-  createdAt   DateTime @default(now())
-  userType    userType @default(user)
-  isVerify    Boolean
-  isBanned    Boolean
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
+  id           Int          @id @default(autoincrement())
+  email        String       @unique
+  password     String
+  phoneNumber  String       @unique
+  createdAt    DateTime     @default(now())
+  userType     userType     @default(user)
+  verifyStatus verifyStatus @default(notVerify)
+  isBanned     Boolean      @default(false)
+  userId       Int
+  user         User         @relation(fields: [userId], references: [id])
 
   @@map("auth_user")
 }
@@ -42,7 +48,7 @@ model User {
   address             String?        @db.VarChar(255)
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
-  personalDescription String?        @db.VarChar(255)
+  personalDescription String?        @db.Text
   wallet              Decimal        @default(0) @db.Decimal(10, 2)
   creater             ChatRoom[]     @relation("creater")
   dealer              ChatRoom[]     @relation("dealer")
@@ -88,9 +94,10 @@ model Review {
 }
 
 model WorkCategories {
-  id       Int    @id @default(autoincrement())
-  category String
-  work     Work[]
+  id            Int    @id @default(autoincrement())
+  category      String
+  categoryImage String
+  work          Work[]
 
   @@map("category")
 }
@@ -106,23 +113,25 @@ model Challenger {
 }
 
 enum statusWork {
-  create
   adminReview
+  finding
   makeDeal
   acceptDeal
   onProcess
   requestSuccess
   success
   cancel
+  onIssue
 }
 
 model Work {
   id          Int             @id @default(autoincrement())
   title       String
-  description String
+  description String          @db.Text
+  isOnsite    Boolean         @default(false)
   price       Decimal         @db.Decimal(10, 2)
-  addressLat  String
-  addressLong String
+  addressLat  String?
+  addressLong String?
   createdAt   DateTime        @default(now())
   startDate   DateTime
   endDate     DateTime?

@@ -28,8 +28,6 @@ exports.register = async (req, res, next) => {
             email: value.email,
             password: value.password,
             phoneNumber: value.phoneNumber,
-            isVerify: false,
-            isBanned: false,
           },
         },
       },

@@ -22,6 +22,11 @@ exports.validateUser = async (req, res, next) => {
         identifyImage: response.identifyImage,
         birthDate: value.birthDate + "T00:00:00Z",
         address: value.address,
+        authUser: {
+          update: {
+            ververifyStatus: pending,
+          },
+        },
       },
       include: {
         authUser: true,
