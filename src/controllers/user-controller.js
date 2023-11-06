@@ -7,7 +7,7 @@ exports.validateUser = async (req, res, next) => {
   try {
     const value = req.body;
     const response = {};
-    if (req.file.path) {
+    if (req.file?.path) {
       const url = await upload(req.file.path);
       response.identifyImage = url;
     }
