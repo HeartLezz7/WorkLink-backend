@@ -1,21 +1,33 @@
-const { STATUS_WORK_CREATE } = require("../configs/constants");
+const {
+  STATUS_WORK_CREATE,
+  STATUS_WORK_ADMINREVIEW,
+} = require("../configs/constants");
 const prisma = require("../models/prisma");
+const { upload } = require("../utils/cloundinary-service");
 const createError = require("../utils/create-error");
 
 exports.createWork = async (req, res, next) => {
   try {
+    // console.log(req.file);
     const data = req.body;
-    console.log(data);
+
+    if (req.file?.path) {
+      // console.log(req.file.path);
+      const url = await upload(req.file.path);
+      data.workImage = url;
+    }
+    // console.log(data);
     const createWork = await prisma.work.create({
       data: {
         title: data.title,
         description: data.description,
-        price: data.price,
+        price: +data.price,
         addressLat: data.addressLat,
         addressLong: data.addressLong,
         startDate: data.startDate + "T00:00:00Z",
-        statusWork: STATUS_WORK_CREATE,
-        ownerId: req.user.userProfile.id,
+        endDate: data.endDate + "T00:00:00Z",
+        statusWork: STATUS_WORK_ADMINREVIEW,
+        ownerId: req.user.id,
         categoryId: +data.categoryId,
         workImage: data.workImage,
       },
@@ -29,7 +41,7 @@ exports.createWork = async (req, res, next) => {
 exports.getAllWork = async (req, res, next) => {
   try {
     const allWork = await prisma.work.findMany({});
-    console.log(value);
+    // console.log(value);
     res.status(201).json({ allWork });
   } catch (err) {
     next(err);

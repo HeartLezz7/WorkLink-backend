@@ -47,7 +47,7 @@ exports.validateUser = async (req, res, next) => {
   } catch (err) {
     next(err);
   } finally {
-    if (req.file.path) {
+    if (req.file?.path) {
       fs.unlink(req.file.path);
     }
   }
