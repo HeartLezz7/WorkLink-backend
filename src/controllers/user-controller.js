@@ -7,7 +7,7 @@ exports.validateUser = async (req, res, next) => {
   try {
     const value = req.body;
     const response = {};
-    if (req.file.path) {
+    if (req.file?.path) {
       const url = await upload(req.file.path);
       response.identifyImage = url;
     }
@@ -24,7 +24,12 @@ exports.validateUser = async (req, res, next) => {
         address: value.address,
         authUser: {
           update: {
-            ververifyStatus: pending,
+            where: {
+              id: req.user.authUser.id,
+            },
+            data: {
+              verifyStatus: "pending",
+            },
           },
         },
       },
@@ -58,7 +63,7 @@ exports.getUserProfileById = async (req, res, next) => {
         authUser: {
           select: {
             isBanned: true,
-            isVerify: true,
+            verifyStatus: true,
           },
         },
       },

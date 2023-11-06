@@ -20,7 +20,7 @@ exports.register = async (req, res, next) => {
     }
     console.log(adminRegister);
     if (adminRegister.userType === "admin") {
-      adminRegister.isVerify = true;
+      adminRegister.verifyStatus = true;
     }
     const createAdmin = await prisma.User.create({
       data: {
@@ -28,7 +28,7 @@ exports.register = async (req, res, next) => {
         password: adminRegister.password,
         phoneNumber: adminRegister.phoneNumber,
         userType: adminRegister.userType,
-        isVerify: adminRegister.isVerify,
+        verifyStatus: adminRegister.verifyStatus,
         isBanned: false,
       },
     });
