@@ -81,7 +81,7 @@ exports.updateProfile = async (req, res, next) => {
     // console.log(req.body);
 
     if (req.file?.path) {
-      console.log(req.file.path);
+      // console.log(req.file.path);
       const url = await upload(req.file.path);
 
       req.body.profileImage = url;
