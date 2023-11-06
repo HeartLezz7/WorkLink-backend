@@ -5,6 +5,7 @@ const validator = require("../validators/validate-schema");
 const bcrypt = require("bcryptjs");
 const createError = require("../utils/create-error");
 
+// hong edit complete
 exports.register = async (req, res, next) => {
   try {
     const { value, error } = registerSchema.validate(req.body);
@@ -19,25 +20,22 @@ exports.register = async (req, res, next) => {
 
     const user = await prisma.user.create({
       data: {
-        email: value.email,
-        password: value.password,
-        phoneNumber: value.phoneNumber,
-        isVerify: false,
-        isBanned: false,
-      },
-    });
-
-    const create = await prisma.userProfile.create({
-      data: {
         firstName: value.firstName,
         lastName: value.lastName,
         profileImage: value.profileImage,
-        userId: user.id,
+        authUser: {
+          create: {
+            email: value.email,
+            password: value.password,
+            phoneNumber: value.phoneNumber,
+          },
+        },
       },
       include: {
-        user: true,
+        authUser: true,
       },
     });
+    console.log(user);
 
     const payload = { userId: user.id };
     const accessToken = jwt.sign(
@@ -46,38 +44,52 @@ exports.register = async (req, res, next) => {
       { expiresIn: process.env.JWT_EXPIRE }
     );
 
-    delete user.password;
+    user.authUser = user.authUser[0];
 
-    res.status(201).json({ accessToken, user, create });
+    delete user.authUser.password;
+
+    res.status(201).json({ accessToken, user });
   } catch (error) {
     console.log(error);
     next(error);
   }
 };
 
+// hong edit complete
 exports.login = async (req, res, next) => {
   try {
     const value = validator(loginSchema, req.body, 401);
 
-    const user = await prisma.user.findFirst({
+    const authUser = await prisma.authUser.findFirst({
       where: {
         OR: [{ email: value.email }, { phoneNumber: value.phoneNumber }],
       },
     });
 
-    if (!user) {
+    if (!authUser) {
       return next(createError("invalid credential", 400));
     }
-    const isMatch = await bcrypt.compare(value.password, user.password);
+    const isMatch = await bcrypt.compare(value.password, authUser.password);
     if (!isMatch) {
       return next(createError("invalid credential", 400));
     }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: authUser.userId,
+      },
+      include: {
+        authUser: true,
+      },
+    });
     const payload = { userId: user.id };
     const accessToken = jwt.sign(
       payload,
       process.env.JWT_SECRET_KEY || "asdfghjkloiuytrrewq",
       { expiresIn: process.env.JWT_EXPIRE }
     );
+    user.authUser = user.authUser[0];
+    delete user.authUser.password;
     res.status(200).json({ accessToken, user });
   } catch (error) {
     console.log(error);
@@ -85,6 +97,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
+// hong edit complete
 exports.getMe = async (req, res, next) => {
   res.status(200).json({ user: req.user });
 };

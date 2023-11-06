@@ -16,21 +16,28 @@ enum userType {
   system
 }
 
-model User {
-  id          Int          @id @default(autoincrement())
-  email       String       @unique
-  password    String
-  phoneNumber String       @unique
-  createdAt   DateTime     @default(now())
-  userType    userType     @default(user)
-  isVerify    Boolean
-  isBanned    Boolean
-  userProfile UserProfile?
-
-  @@map("user")
+enum verifyStatus {
+  notVerify
+  pending
+  verify
 }
 
-model UserProfile {
+model AuthUser {
+  id           Int          @id @default(autoincrement())
+  email        String       @unique
+  password     String
+  phoneNumber  String       @unique
+  createdAt    DateTime     @default(now())
+  userType     userType     @default(user)
+  verifyStatus verifyStatus @default(notVerify)
+  isBanned     Boolean      @default(false)
+  userId       Int
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@map("auth_user")
+}
+
+model User {
   id                  Int            @id @default(autoincrement())
   firstName           String
   lastName            String
@@ -41,10 +48,8 @@ model UserProfile {
   address             String?        @db.VarChar(255)
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
-  personalDescription String?        @db.VarChar(255)
+  personalDescription String?        @db.Text
   wallet              Decimal        @default(0) @db.Decimal(10, 2)
-  user                User           @relation(fields: [userId], references: [id])
-  userId              Int            @unique
   creater             ChatRoom[]     @relation("creater")
   dealer              ChatRoom[]     @relation("dealer")
   owner               Work[]         @relation("owner")
@@ -58,80 +63,84 @@ model UserProfile {
   reviewBy            Review[]       @relation("reviewBy")
   sender              ChatMessages[] @relation("sender")
   receiver            ChatMessages[] @relation("receiver")
+  authUser            AuthUser[]
 
-  @@map("user_profile")
+  @@map("user")
 }
 
 model ShowCase {
-  id            Int         @id @default(autoincrement())
-  imagePictue   String
-  description   String
-  userProfileId Int
-  userprofile   UserProfile @relation(fields: [userProfileId], references: [id])
+  id          Int    @id @default(autoincrement())
+  imagePictue String
+  description String
+  userId      Int
+  user        User   @relation(fields: [userId], references: [id])
 
   @@map("show_case")
 }
 
 model Review {
-  id         Int         @id @default(autoincrement())
-  rating     Decimal     @db.Decimal(3, 2)
+  id         Int      @id @default(autoincrement())
+  rating     Decimal  @db.Decimal(3, 2)
   detail     String?
-  createdAt  DateTime    @default(now())
-  work       Work        @relation(fields: [workId], references: [id])
+  createdAt  DateTime @default(now())
+  work       Work     @relation(fields: [workId], references: [id])
   workId     Int
-  reviewer   UserProfile @relation("reviewer", fields: [reviewerId], references: [id])
+  reviewer   User     @relation("reviewer", fields: [reviewerId], references: [id])
   reviewerId Int
-  reviewBy   UserProfile @relation("reviewBy", fields: [reviewById], references: [id])
+  reviewBy   User     @relation("reviewBy", fields: [reviewById], references: [id])
   reviewById Int
 
   @@map("review")
 }
 
 model WorkCategories {
-  id       Int    @id @default(autoincrement())
-  category String
-  work     Work[]
+  id            Int    @id @default(autoincrement())
+  category      String
+  categoryImage String
+  work          Work[]
 
   @@map("category")
 }
 
 model Challenger {
-  id            Int         @id @default(autoincrement())
-  userProfile   UserProfile @relation(fields: [userProfileId], references: [id])
-  userProfileId Int
-  work          Work        @relation(fields: [workId], references: [id])
-  workId        Int
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+  work   Work @relation(fields: [workId], references: [id])
+  workId Int
 
   @@map("challenger")
 }
 
 enum statusWork {
-  create
   adminReview
+  finding
   makeDeal
   acceptDeal
   onProcess
   requestSuccess
   success
   cancel
+  onIssue
 }
 
 model Work {
   id          Int             @id @default(autoincrement())
   title       String
-  description String
+  description String          @db.Text
+  isOnsite    Boolean         @default(false)
   price       Decimal         @db.Decimal(10, 2)
-  addressLat  String
-  addressLong String
+  addressLat  String?
+  addressLong String?
   createdAt   DateTime        @default(now())
   startDate   DateTime
   endDate     DateTime?
   workImage   String
   statusWork  statusWork
   ownerId     Int
-  owner       UserProfile     @relation("owner", fields: [ownerId], references: [id])
+  owner       User            @relation("owner", fields: [ownerId], references: [id])
   workerId    Int?
-  worker      UserProfile?    @relation("worker", fields: [workerId], references: [id])
+  worker      User?           @relation("worker", fields: [workerId], references: [id])
   categoryId  Int
   category    WorkCategories? @relation(fields: [categoryId], references: [id])
   chatRoom    ChatRoom[]
@@ -155,38 +164,38 @@ model ChatRoom {
   workId      Int
   work        Work           @relation(fields: [workId], references: [id])
   createrId   Int
-  creater     UserProfile    @relation("creater", fields: [createrId], references: [id])
+  creater     User           @relation("creater", fields: [createrId], references: [id])
   dealerId    Int
-  dealer      UserProfile    @relation("dealer", fields: [dealerId], references: [id])
+  dealer      User           @relation("dealer", fields: [dealerId], references: [id])
   ChatMessage ChatMessages[]
 
   @@map("chat_room")
 }
 
 model ChatMessages {
-  id         Int         @id @default(autoincrement())
-  message    String      @db.VarChar(255)
-  createAt   DateTime    @default(now())
+  id         Int      @id @default(autoincrement())
+  message    String   @db.VarChar(255)
+  createAt   DateTime @default(now())
   chatRoomId Int
-  chatRoom   ChatRoom    @relation(fields: [chatRoomId], references: [id])
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
   senderId   Int
-  sender     UserProfile @relation("sender", fields: [senderId], references: [id])
+  sender     User     @relation("sender", fields: [senderId], references: [id])
   receiverId Int
-  receiver   UserProfile @relation("receiver", fields: [receiverId], references: [id])
+  receiver   User     @relation("receiver", fields: [receiverId], references: [id])
 
   @@map("chat_messages")
 }
 
 model Report {
-  id         Int         @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   detail     String
-  createdAt  DateTime    @default(now())
+  createdAt  DateTime @default(now())
   workId     Int
-  work       Work        @relation(fields: [workId], references: [id])
+  work       Work     @relation(fields: [workId], references: [id])
   reportById Int
-  reportBy   UserProfile @relation("reportBy", fields: [reportById], references: [id])
+  reportBy   User     @relation("reportBy", fields: [reportById], references: [id])
   reportedId Int
-  reported   UserProfile @relation("reported", fields: [reportedId], references: [id])
+  reported   User     @relation("reported", fields: [reportedId], references: [id])
 }
 
 enum transactionType {
@@ -203,15 +212,15 @@ enum transactionStatus {
 }
 
 model Transaction {
-  id            Int               @id @default(autoincrement())
-  type          transactionType
-  amount        Decimal           @db.Decimal(10, 2)
-  slipImage     String?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  status        transactionStatus
-  userProfile   UserProfile       @relation(fields: [userProfileId], references: [id])
-  userProfileId Int
-  work          Work              @relation(fields: [workId], references: [id])
-  workId        Int
+  id        Int               @id @default(autoincrement())
+  type      transactionType
+  amount    Decimal           @db.Decimal(10, 2)
+  slipImage String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  status    transactionStatus
+  user      User              @relation(fields: [userId], references: [id])
+  userId    Int
+  work      Work              @relation(fields: [workId], references: [id])
+  workId    Int
 }
