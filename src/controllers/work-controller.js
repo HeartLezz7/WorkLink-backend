@@ -3,6 +3,7 @@ const {
   STATUS_WORK_ADMINREVIEW,
 } = require("../configs/constants");
 const prisma = require("../models/prisma");
+const fs = require("fs/promises");
 const { upload } = require("../utils/cloundinary-service");
 const createError = require("../utils/create-error");
 
@@ -47,10 +48,38 @@ exports.getAllWork = async (req, res, next) => {
     const allWork = await prisma.work.findMany({
       include: {
         challenger: true,
+        category: true,
       },
     });
     // console.log(value);
     res.status(201).json({ allWork });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getDelegatedWorkById = async (req, res, next) => {
+  try {
+    const { workId } = req.params;
+    const work = await prisma.work.findUnique({
+      where: {
+        id: +workId,
+      },
+      include: {
+        challenger: {
+          include: {
+            user: true,
+          },
+        },
+        category: true,
+        chatRoom: true,
+        report: true,
+        transaction: true,
+        review: true,
+      },
+    });
+    // console.log(value);
+    res.status(201).json({ work });
   } catch (err) {
     next(err);
   }
@@ -96,10 +125,10 @@ exports.getAllCategories = async (req, res, next) => {
 
 exports.createChallenger = async (req, res, next) => {
   try {
-    const { workid } = req.params;
+    const { workId } = req.params;
     const findWorkid = await prisma.challenger.findFirst({
       where: {
-        workId: +workid,
+        AND: { workId: +workId, userId: req.user.id },
       },
     });
 
@@ -109,7 +138,7 @@ exports.createChallenger = async (req, res, next) => {
 
     const createChallenger = await prisma.challenger.create({
       data: {
-        workId: +workid,
+        workId: +workId,
         userId: req.user.id,
       },
     });

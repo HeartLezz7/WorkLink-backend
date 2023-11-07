@@ -11,11 +11,12 @@ route.post(
   workController.createWork
 );
 route.get("/", workController.getAllWork);
+route.get("/getdelegatedworkbyid/:workId", workController.getDelegatedWorkById);
 route.delete("/delete/:id", workController.deleteWork);
 route.post("/createcategories", workController.createworkCategories);
 route.get("/allCategories", workController.getAllCategories);
 route.post(
-  "/challenger/:workid",
+  "/challenger/:workId",
   authenticated,
   workController.createChallenger
 );
