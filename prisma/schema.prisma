@@ -57,8 +57,8 @@ model User {
   showCase            ShowCase[]
   reported            Report[]       @relation("reported")
   reportBy            Report[]       @relation("reportBy")
-  Transaction         Transaction[]
-  Challenger          Challenger[]
+  transaction         Transaction[]
+  challenger          Challenger[]
   reviewer            Review[]       @relation("reviewer")
   reviewBy            Review[]       @relation("reviewBy")
   sender              ChatMessages[] @relation("sender")
@@ -116,7 +116,6 @@ enum statusWork {
   adminReview
   finding
   makeDeal
-  acceptDeal
   onProcess
   requestSuccess
   success
@@ -144,10 +143,10 @@ model Work {
   categoryId  Int
   category    WorkCategories? @relation(fields: [categoryId], references: [id])
   chatRoom    ChatRoom[]
-  Report      Report[]
-  Transaction Transaction[]
-  Review      Review[]
-  Challenger  Challenger[]
+  report      Report[]
+  transaction Transaction[]
+  review      Review[]
+  challenger  Challenger[]
 
   @@map("work")
 }
@@ -167,7 +166,7 @@ model ChatRoom {
   creater     User           @relation("creater", fields: [createrId], references: [id])
   dealerId    Int
   dealer      User           @relation("dealer", fields: [dealerId], references: [id])
-  ChatMessage ChatMessages[]
+  chatMessage ChatMessages[]
 
   @@map("chat_room")
 }

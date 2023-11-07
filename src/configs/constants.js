@@ -1,11 +1,11 @@
-exports.STATUS_WORK_CREATE = "create";
 exports.STATUS_WORK_ADMINREVIEW = "adminReview";
+exports.STATUS_WORK_FINDING = "finding";
 exports.STATUS_WORK_MAKEDEAL = "makeDeal";
-exports.STATUS_WORK_ACCEPTDEAL = "acceptDeal";
 exports.STATUS_WORK_PROCESS = "onProcess";
 exports.STATUS_WORK_REQUESTSUCCESS = "requestSuccess";
 exports.STATUS_WORK_SUCCESS = "success";
 exports.STATUS_WORK_CANCEL = "cancel";
+exports.STATUS_WORK_ACCEPTDEAL = "onIssue";
 
 exports.USER_TYPE_USER = "user";
 exports.USER_TYPE_ADMIN = "admin";

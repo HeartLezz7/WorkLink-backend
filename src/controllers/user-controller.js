@@ -47,7 +47,7 @@ exports.validateUser = async (req, res, next) => {
   } catch (err) {
     next(err);
   } finally {
-    if (req.file.path) {
+    if (req.file?.path) {
       fs.unlink(req.file.path);
     }
   }
@@ -81,7 +81,7 @@ exports.updateProfile = async (req, res, next) => {
     // console.log(req.body);
 
     if (req.file?.path) {
-      console.log(req.file.path);
+      // console.log(req.file.path);
       const url = await upload(req.file.path);
 
       req.body.profileImage = url;
