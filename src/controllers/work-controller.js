@@ -35,6 +35,10 @@ exports.createWork = async (req, res, next) => {
     res.status(201).json({ createWork });
   } catch (err) {
     next(err);
+  } finally {
+    if (req.file?.path) {
+      fs.unlink(req.file.path);
+    }
   }
 };
 
