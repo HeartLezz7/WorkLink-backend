@@ -40,7 +40,11 @@ exports.createWork = async (req, res, next) => {
 
 exports.getAllWork = async (req, res, next) => {
   try {
-    const allWork = await prisma.work.findMany({});
+    const allWork = await prisma.work.findMany({
+      include: {
+        challenger: true,
+      },
+    });
     // console.log(value);
     res.status(201).json({ allWork });
   } catch (err) {
@@ -102,7 +106,7 @@ exports.createChallenger = async (req, res, next) => {
     const createChallenger = await prisma.challenger.create({
       data: {
         workId: +workid,
-        userProfileId: req.user.userProfile.id,
+        userId: req.user.id,
       },
     });
     res.status(200).json({
