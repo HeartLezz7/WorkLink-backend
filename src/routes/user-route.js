@@ -29,6 +29,8 @@ router.post(
 
 router.get("/showcase", authenticateMiddleware, userController.getAllShowCase);
 
+router.delete('/showcase/:id',authenticateMiddleware,userController)
+
 router.post(
   "/createreport",
   authenticateMiddleware,
