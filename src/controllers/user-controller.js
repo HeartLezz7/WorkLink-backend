@@ -115,6 +115,7 @@ exports.updateProfile = async (req, res, next) => {
 exports.createShowCase = async (req, res, next) => {
   try {
     const value = req.body;
+    console.log(req.user)
     const response = {};
     if (req.file) {
       const url = await upload(req.file.path);
@@ -124,10 +125,10 @@ exports.createShowCase = async (req, res, next) => {
       data: {
         imagePictue: response.imagePictue,
         description: value.description,
-        userProfileId: req.user.userProfile.id,
+        userProfileId: req.user.id,
       },
     });
-    res.status(201).json({ createCase });
+    res.status(201).json({ message:"Success showcase /user/createShowcase",createCase });
   } catch (err) {
     next(err);
   } finally {
