@@ -30,6 +30,7 @@ router.post(
 router.get("/showcase", authenticateMiddleware, userController.getAllShowCase);
 
 router.delete('/showcase/:id',authenticateMiddleware,userController.deleteShowCasebyId)
+router.patch('/editshowcase',authenticateMiddleware,uploadMiddleware.single("imagePicture"),userController.editShowCase)
 
 router.post(
   "/createreport",

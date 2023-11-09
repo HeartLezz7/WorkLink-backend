@@ -79,7 +79,7 @@ exports.getUserProfileById = async (req, res, next) => {
 exports.updateProfile = async (req, res, next) => {
   try {
     // console.log(req.user.userProfile);
-    // console.log(req.body);
+    console.log(req.body);
 
     if (req.file?.path) {
       // console.log(req.file.path);
@@ -167,6 +167,32 @@ exports.deleteShowCasebyId = async (req,res,next) =>{
       })
       res.status(200).json({Message:"Show case Id deleted"})
   } catch (error) {
+    next(error)
+    
+  }
+}
+
+exports.editShowCase = async (req,res,next) =>{
+  try {
+    const { id , description} = req.body
+    if (req.file?.path) {
+      // console.log(req.file.path);
+      const url = await upload(req.file.path);
+      req.body.imagePicture = url;
+    }
+
+    const updateShowcase = await prisma.showCase.update({
+      where: {
+        id: +id,
+      },
+      data: {
+        imagePicture:req.body.imagePicture,
+        description
+      },
+    });
+    res.status(200).json({message:'Showcase item updated',updateShowcase})
+  } catch (error) {
+    console.log(error)
     next(error)
     
   }
