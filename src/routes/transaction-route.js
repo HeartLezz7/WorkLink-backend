@@ -25,9 +25,9 @@ route.get(
   transactionController.getAllTransaction
 );
 route.get(
-  "/alltransaction/:userProfileId",
+  "/getme/:userId",
   authenticateMiddleware,
-  transactionController.getTransactionByuserProfileId
+  transactionController.getTransactionByuserId
 );
 
 module.exports = route;
