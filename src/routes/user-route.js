@@ -23,7 +23,7 @@ router.patch(
 router.post(
   "/createshowcase",
   authenticateMiddleware,
-  uploadMiddleware.single("imagePictue"),
+  uploadMiddleware.single("imagePicture"),
   userController.createShowCase
 );
 
