@@ -101,3 +101,84 @@ exports.login = async (req, res, next) => {
 exports.getMe = async (req, res, next) => {
   res.status(200).json({ user: req.user });
 };
+
+exports.loginGoogle = async (req, res, next) => {
+  try {
+    const data = req.body;
+    console.log(data.email);
+    // if (error) {
+    //   error.statusCode = 400;
+    //   return next(error);
+    // }
+    const findGoogle = await prisma.AuthUser.findFirst({
+      where: {
+        email: data.email,
+      },
+    });
+    phoneNumberGoogle = data.aud;
+    profileImage =
+      "https://res.cloudinary.com/dgtfci0ku/image/upload/v1698914919/rzlbsqmochzva454ttiq.jpg";
+
+    console.log(findGoogle, "google");
+    if (!findGoogle) {
+      const google = await prisma.user.create({
+        data: {
+          firstName: data.given_name,
+          lastName: data.family_name,
+          profileImage: profileImage,
+          authUser: {
+            create: {
+              email: data.email,
+              password: data.aud,
+              phoneNumber: phoneNumberGoogle,
+            },
+          },
+        },
+        include: {
+          authUser: true,
+        },
+      });
+      console.log(google);
+
+      const payload = { userId: google.id };
+      const accessToken = jwt.sign(
+        payload,
+        process.env.JWT_SECRET_KEY || "asdfghjklmnbvcxzqwe",
+        { expiresIn: process.env.JWT_EXPIRE }
+      );
+
+      google.authUser = google.authUser[0];
+
+      delete google.authUser.password;
+
+      return res.status(201).json({ accessToken, google });
+    }
+    if (findGoogle) {
+      const google = await prisma.user.findUnique({
+        where: {
+          id: findGoogle.userId,
+        },
+        include: {
+          authUser: true,
+        },
+      });
+
+      console.log("165", google);
+      const payload = { userId: google.id };
+      const accessToken = jwt.sign(
+        payload,
+        process.env.JWT_SECRET_KEY || "asdfghjklmnbvcxzqwe",
+        { expiresIn: process.env.JWT_EXPIRE }
+      );
+
+      console.log(google, "google authuser");
+      google.authUser = google.authUser;
+
+      delete google.authUser.password;
+
+      res.status(201).json({ accessToken, google });
+    }
+  } catch (err) {
+    next(err);
+  }
+};
