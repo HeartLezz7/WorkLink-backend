@@ -4,6 +4,8 @@ const server = require("./app");
 
 const { Server } = require("socket.io");
 const createError = require("./utils/create-error");
+const { conversation } = require("./controllers/chat-controller");
+const prisma = require("./models/prisma");
 
 const io = new Server(server, {
   cors: {
@@ -17,20 +19,30 @@ const onlineUser = {};
 
 io.use((socket, next) => {
   const userId = socket.handshake.auth.id;
+  console.log(socket.handshake.auth);
+  // const dealerId = socket.handshake.dealer.id;
 
   //   if (!userId) {
   //     return next(createError("user forbiden", 403));
   //   }
 
   onlineUser[userId] = socket.id;
-  console.log(onlineUser);
+  console.log(onlineUser, "onlineUser");
   next();
 });
 
 io.on("connection", (socket) => {
   console.log("connection");
-  socket.on("message", (msg) => {
-    console.log(msg);
+  socket.on("sent_message", async ({ message, from, to, room }) => {
+    const response = await prisma.chatMessages.create({
+      data: {
+        chatRoomId: room,
+        senderId: from,
+        receiverId: to,
+        message: message,
+      },
+    });
+    socket.emit("receive_message", response);
   });
   socket.on("disconnect", () => {
     console.log("user disconnected");
