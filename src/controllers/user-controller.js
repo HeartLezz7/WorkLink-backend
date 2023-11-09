@@ -6,6 +6,7 @@ const { upload } = require("../utils/cloundinary-service");
 exports.validateUser = async (req, res, next) => {
   try {
     const value = req.body;
+    // console.log(value);
     const response = {};
     if (req.file?.path) {
       const url = await upload(req.file.path);
@@ -28,6 +29,7 @@ exports.validateUser = async (req, res, next) => {
               id: req.user.authUser.id,
             },
             data: {
+              phoneNumber: value.phoneNumber,
               verifyStatus: "pending",
             },
           },
@@ -115,7 +117,7 @@ exports.updateProfile = async (req, res, next) => {
 exports.createShowCase = async (req, res, next) => {
   try {
     const value = req.body;
-    console.log(req.user)
+    console.log(req.user);
     const response = {};
     if (req.file) {
       const url = await upload(req.file.path);
@@ -126,10 +128,12 @@ exports.createShowCase = async (req, res, next) => {
         imagePicture: response.imagePicture,
         description: value.description,
         userId: req.user.id,
-      }
+      },
     });
-    console.log(createCase)
-    res.status(201).json({ message:"Success showcase /user/createShowcase",createCase });
+    console.log(createCase);
+    res
+      .status(201)
+      .json({ message: "Success showcase /user/createShowcase", createCase });
   } catch (err) {
     next(err);
   } finally {

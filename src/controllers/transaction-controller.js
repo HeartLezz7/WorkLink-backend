@@ -6,21 +6,22 @@ const fs = require("fs/promises");
 exports.createTransaction = async (req, res, next) => {
   try {
     const data = req.body;
-    const createTransaction = await prisma.transaction.create({
-      data: {
-        type: data.type,
-        amount: data.amount,
-        status: TRANSACTIONSTATUS_PENDING,
-        workTitle: data.workTitle,
-        userProfileId: req.user.userProfile.id,
-        workId: data.workId,
-      },
-    });
-    console.log(createTransaction);
-    res.status(201).json({
-      message: "Success create transaction from /transaction",
-      createTransaction,
-    });
+    console.log(data);
+    if (data.type === "withdraw" || data.type === "deposite") {
+      const transaction = await prisma.transaction.create({
+        data: {
+          type: data.type,
+          amount: data.amount,
+          status: TRANSACTIONSTATUS_PENDING,
+          userId: req.user.id,
+        },
+      });
+      console.log(transaction);
+      res.status(201).json({
+        message: "Success create transaction from /transaction",
+        transaction,
+      });
+    }
   } catch (error) {
     next(error);
   }

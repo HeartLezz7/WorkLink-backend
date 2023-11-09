@@ -3,10 +3,12 @@ const route = express.Router();
 const transactionController = require("../controllers/transaction-controller");
 const authenticateMiddleware = require("../middlewares/authenticated");
 const upload = require("../middlewares/upload");
+const uploadMiddleware = require("../middlewares/upload");
 
 route.post(
   "/createtransaction",
   authenticateMiddleware,
+  uploadMiddleware.single("slipImage"),
   transactionController.createTransaction
 );
 
