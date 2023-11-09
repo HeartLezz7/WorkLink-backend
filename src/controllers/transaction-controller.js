@@ -30,6 +30,10 @@ exports.createTransaction = async (req, res, next) => {
     }
   } catch (error) {
     next(error);
+  } finally {
+    if (req.file?.path) {
+      fs.unlink(req.file.path);
+    }
   }
 };
 
