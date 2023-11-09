@@ -119,15 +119,16 @@ exports.createShowCase = async (req, res, next) => {
     const response = {};
     if (req.file) {
       const url = await upload(req.file.path);
-      response.imagePictue = url;
+      response.imagePicture = url;
     }
     const createCase = await prisma.showCase.create({
       data: {
-        imagePictue: response.imagePictue,
+        imagePicture: response.imagePicture,
         description: value.description,
-        userProfileId: req.user.id,
-      },
+        userId: req.user.id,
+      }
     });
+    console.log(createCase)
     res.status(201).json({ message:"Success showcase /user/createShowcase",createCase });
   } catch (err) {
     next(err);
