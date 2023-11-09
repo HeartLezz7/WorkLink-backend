@@ -69,11 +69,11 @@ model User {
 }
 
 model ShowCase {
-  id          Int    @id @default(autoincrement())
-  imagePictue String
-  description String
-  userId      Int
-  user        User   @relation(fields: [userId], references: [id])
+  id           Int    @id @default(autoincrement())
+  imagePicture String
+  description  String
+  userId       Int
+  user         User   @relation(fields: [userId], references: [id])
 
   @@map("show_case")
 }
@@ -174,7 +174,7 @@ model ChatRoom {
 model ChatMessages {
   id         Int      @id @default(autoincrement())
   message    String   @db.VarChar(255)
-  createAt   DateTime @default(now())
+  createdAt   DateTime @default(now())
   chatRoomId Int
   chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
   senderId   Int
@@ -220,6 +220,6 @@ model Transaction {
   status    transactionStatus
   user      User              @relation(fields: [userId], references: [id])
   userId    Int
-  work      Work              @relation(fields: [workId], references: [id])
+  work      Work?             @relation(fields: [workId], references: [id])
   workId    Int
 }
