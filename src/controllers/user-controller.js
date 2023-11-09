@@ -1,6 +1,7 @@
 const fs = require("fs/promises");
 const prisma = require("../models/prisma");
 const { upload } = require("../utils/cloundinary-service");
+const createError = require('../utils/create-error')
 
 // hong edit complete
 exports.validateUser = async (req, res, next) => {
@@ -147,6 +148,29 @@ exports.getAllShowCase = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.deleteShowCasebyId = async (req,res,next) =>{
+  try {
+      const {id} = req.params
+      const findCaseId = await  prisma.showCase.findFirst({
+        where:{
+          id : +id
+        }
+      })
+      if(!findCaseId){
+        return next(createError("Sorry do not have this item ID", 400))
+      }
+      await prisma.showCase.delete({
+        where:{
+          id:findCaseId.id
+        }
+      })
+      res.status(200).json({Message:"Show case Id deleted"})
+  } catch (error) {
+    next(error)
+    
+  }
+}
 
 exports.createReport = async (req, res, next) => {
   try {

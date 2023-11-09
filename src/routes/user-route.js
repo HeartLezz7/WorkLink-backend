@@ -29,7 +29,7 @@ router.post(
 
 router.get("/showcase", authenticateMiddleware, userController.getAllShowCase);
 
-router.delete('/showcase/:id',authenticateMiddleware,userController)
+router.delete('/showcase/:id',authenticateMiddleware,userController.deleteShowCasebyId)
 
 router.post(
   "/createreport",
