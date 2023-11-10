@@ -1,11 +1,13 @@
 const fs = require("fs/promises");
 const prisma = require("../models/prisma");
 const { upload } = require("../utils/cloundinary-service");
+const createError = require('../utils/create-error')
 
 // hong edit complete
 exports.validateUser = async (req, res, next) => {
   try {
     const value = req.body;
+    // console.log(value);
     const response = {};
     if (req.file?.path) {
       const url = await upload(req.file.path);
@@ -28,6 +30,7 @@ exports.validateUser = async (req, res, next) => {
               id: req.user.authUser.id,
             },
             data: {
+              phoneNumber: value.phoneNumber,
               verifyStatus: "pending",
             },
           },
@@ -78,7 +81,7 @@ exports.getUserProfileById = async (req, res, next) => {
 exports.updateProfile = async (req, res, next) => {
   try {
     // console.log(req.user.userProfile);
-    // console.log(req.body);
+    console.log(req.body);
 
     if (req.file?.path) {
       // console.log(req.file.path);
@@ -115,7 +118,7 @@ exports.updateProfile = async (req, res, next) => {
 exports.createShowCase = async (req, res, next) => {
   try {
     const value = req.body;
-    console.log(req.user)
+    console.log(req.user);
     const response = {};
     if (req.file) {
       const url = await upload(req.file.path);
@@ -126,10 +129,12 @@ exports.createShowCase = async (req, res, next) => {
         imagePicture: response.imagePicture,
         description: value.description,
         userId: req.user.id,
-      }
+      },
     });
-    console.log(createCase)
-    res.status(201).json({ message:"Success showcase /user/createShowcase",createCase });
+    console.log(createCase);
+    res
+      .status(201)
+      .json({ message: "Success showcase /user/createShowcase", createCase });
   } catch (err) {
     next(err);
   } finally {
@@ -147,6 +152,58 @@ exports.getAllShowCase = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.deleteShowCasebyId = async (req,res,next) =>{
+  try {
+      const {id} = req.params
+      const findCaseId = await  prisma.showCase.findFirst({
+        where:{
+          id : +id
+        }
+      })
+      if(!findCaseId){
+        return next(createError("Sorry do not have this item ID", 400))
+      }
+      await prisma.showCase.delete({
+        where:{
+          id:findCaseId.id
+        }
+      })
+      res.status(200).json({Message:"Show case Id deleted"})
+  } catch (error) {
+    next(error)
+    
+  }
+}
+
+exports.editShowCase = async (req,res,next) =>{
+  try {
+    const { id , description} = req.body
+    if (req.file?.path) {
+      // console.log(req.file.path);
+      const url = await upload(req.file.path);
+      req.body.imagePicture = url;
+    }
+
+    const updateShowcase = await prisma.showCase.update({
+      where: {
+        id: +id,
+      },
+      data: {
+        imagePicture:req.body.imagePicture,
+        description
+      },
+    });
+    res.status(200).json({message:'Showcase item updated',updateShowcase})
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }finally {
+    if (req.file) {
+      fs.unlink(req.file.path);
+    }
+  }
+}
 
 exports.createReport = async (req, res, next) => {
   try {
@@ -179,6 +236,19 @@ exports.createReview = async (req, res, next) => {
       },
     });
     res.status(201).json({ createReview });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getalluser = async (req, res, next) => {
+  try {
+    const alluser = await prisma.authUser.findMany({
+      include: {
+        user: true,
+      },
+    });
+    res.status(201).json({ alluser });
   } catch (err) {
     next(err);
   }

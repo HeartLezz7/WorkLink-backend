@@ -42,6 +42,7 @@ io.on("connection", (socket) => {
         message: message,
       },
     });
+    // socket.to(onlineUser[to]).emit("receive_message", response);
     socket.emit("receive_message", response);
   });
   socket.on("disconnect", () => {
