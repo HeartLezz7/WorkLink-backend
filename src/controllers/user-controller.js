@@ -240,3 +240,16 @@ exports.createReview = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getalluser = async (req, res, next) => {
+  try {
+    const alluser = await prisma.authUser.findMany({
+      include: {
+        user: true,
+      },
+    });
+    res.status(201).json({ alluser });
+  } catch (err) {
+    next(err);
+  }
+};

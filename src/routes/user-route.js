@@ -44,4 +44,6 @@ router.post(
   userController.createReview
 );
 
+router.get("/", authenticateMiddleware, userController.getalluser);
+
 module.exports = router;
