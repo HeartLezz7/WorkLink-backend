@@ -101,3 +101,22 @@ exports.login = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.withdrawCheck = async (req, res, next) => {
+  try {
+    console.log(req.body);
+    const { id, status } = req.body
+    console.log(id);
+    console.log(status);
+    const findTransaction = await prisma.Transaction.findFirst({
+      where: {
+        id
+      }
+    })
+    console.log(findTransaction);
+
+
+  } catch (error) {
+    console.log(error);
+  }
+}
