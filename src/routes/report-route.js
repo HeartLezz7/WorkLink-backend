@@ -3,6 +3,12 @@ const router = express.Router();
 
 const reportController = require("../controllers/report-controller");
 
-router.post("createReport", reportController.createReport);
+const authenticatedMiddleware = require("../middlewares/authenticated");
+
+router.post(
+  "createReport",
+  authenticatedMiddleware,
+  reportController.createReport
+);
 
 module.exports = router;
