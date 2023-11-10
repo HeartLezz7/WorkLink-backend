@@ -50,6 +50,7 @@ exports.getAllWork = async (req, res, next) => {
         challenger: true,
         category: true,
       },
+      orderBy: {},
     });
     // console.log(value);
     res.status(201).json({ allWork });
@@ -116,7 +117,7 @@ exports.createworkCategories = async (req, res, next) => {
 exports.getAllCategories = async (req, res, next) => {
   try {
     const allCategories = await prisma.workCategories.findMany({});
-    console.log(value);
+    console.log(allCategories);
     res.status(201).json({ allCategories });
   } catch (error) {
     next(error);
