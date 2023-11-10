@@ -9,6 +9,7 @@ const adminRoute = require("./routes/admin-route");
 const userRoute = require("./routes/user-route");
 const transactionRoute = require("./routes/transaction-route");
 const chatRoute = require("./routes/chat-route");
+const reportRoute = require("./routes/report-route");
 
 const app = express();
 const server = createServer(app);
@@ -23,5 +24,6 @@ app.use("/admin", adminRoute);
 app.use("/user", userRoute);
 app.use("/transaction", transactionRoute);
 app.use("/chat", chatRoute);
+app.use("report", reportRoute);
 
 module.exports = server;
