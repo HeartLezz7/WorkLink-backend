@@ -28,11 +28,12 @@ exports.createTransaction = async (req, res, next) => {
 
 exports.getAllTransaction = async (req, res, next) => {
   try {
-    const alltransaction = await prisma.transaction.findMany({});
-    res.status(201).json({
-      message: "Success Get all transaction from /transaction/alltransaction",
-      alltransaction,
+    const alltransaction = await prisma.transaction.findMany({
+      include: {
+        user: true,
+      },
     });
+    res.status(201).json({ alltransaction });
   } catch (error) {
     next(error);
   }
@@ -46,11 +47,7 @@ exports.getTransactionByuserProfileId = async (req, res, next) => {
         userProfileId: +userProfileId,
       },
     });
-    res.status(201).json({
-      message:
-        "Success Get all transaction By userProfileId from /transaction/alltransaction/:userProfileId",
-      transactionByuserProfileId,
-    });
+    res.status(201).json({ transactionByuserProfileId });
   } catch (error) {
     next(error);
   }

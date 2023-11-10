@@ -22,8 +22,9 @@ route.get(
   authenticateMiddleware,
   transactionController.getAllTransaction
 );
+
 route.get(
-  "/alltransaction/:userProfileId",
+  "/:userProfileId",
   authenticateMiddleware,
   transactionController.getTransactionByuserProfileId
 );

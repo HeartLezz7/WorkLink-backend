@@ -115,7 +115,7 @@ exports.updateProfile = async (req, res, next) => {
 exports.createShowCase = async (req, res, next) => {
   try {
     const value = req.body;
-    console.log(req.user)
+    console.log(req.user);
     const response = {};
     if (req.file) {
       const url = await upload(req.file.path);
@@ -126,10 +126,12 @@ exports.createShowCase = async (req, res, next) => {
         imagePicture: response.imagePicture,
         description: value.description,
         userId: req.user.id,
-      }
+      },
     });
-    console.log(createCase)
-    res.status(201).json({ message:"Success showcase /user/createShowcase",createCase });
+    console.log(createCase);
+    res
+      .status(201)
+      .json({ message: "Success showcase /user/createShowcase", createCase });
   } catch (err) {
     next(err);
   } finally {
@@ -179,6 +181,19 @@ exports.createReview = async (req, res, next) => {
       },
     });
     res.status(201).json({ createReview });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getalluser = async (req, res, next) => {
+  try {
+    const alluser = await prisma.authUser.findMany({
+      include: {
+        user: true,
+      },
+    });
+    res.status(201).json({ alluser });
   } catch (err) {
     next(err);
   }
