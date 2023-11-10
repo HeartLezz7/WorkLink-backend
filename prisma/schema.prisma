@@ -132,6 +132,7 @@ model Work {
   addressLat  String?
   addressLong String?
   createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
   startDate   DateTime
   endDate     DateTime?
   workImage   String
@@ -195,6 +196,8 @@ model Report {
   reportBy   User     @relation("reportBy", fields: [reportById], references: [id])
   reportedId Int
   reported   User     @relation("reported", fields: [reportedId], references: [id])
+
+  @@map("report")
 }
 
 enum transactionType {
@@ -215,6 +218,7 @@ model Transaction {
   type      transactionType
   amount    Decimal           @db.Decimal(10, 2)
   slipImage String?
+  comment   String?
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
   status    transactionStatus
@@ -222,4 +226,6 @@ model Transaction {
   userId    Int
   work      Work?             @relation(fields: [workId], references: [id])
   workId    Int?
+
+  @@map("transaction")
 }

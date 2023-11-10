@@ -12,7 +12,7 @@ exports.createTransaction = async (req, res, next) => {
       req.body.slipImage = url;
     }
     const data = req.body;
-    if (data.type === "withdraw" || data.type === "deposite") {
+    if (data.type === "withdraw" || data.type === "deposit") {
       const transaction = await prisma.transaction.create({
         data: {
           type: data.type,
