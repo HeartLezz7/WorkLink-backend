@@ -50,6 +50,7 @@ exports.getAllWork = async (req, res, next) => {
         challenger: true,
         category: true,
       },
+      orderBy: {},
     });
     // console.log(value);
     res.status(201).json({ allWork });
