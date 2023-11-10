@@ -23,11 +23,14 @@ router.patch(
 router.post(
   "/createshowcase",
   authenticateMiddleware,
-  uploadMiddleware.single("imagePictue"),
+  uploadMiddleware.single("imagePicture"),
   userController.createShowCase
 );
 
 router.get("/showcase", authenticateMiddleware, userController.getAllShowCase);
+
+router.delete('/showcase/:id',authenticateMiddleware,userController.deleteShowCasebyId)
+router.patch('/editshowcase',authenticateMiddleware,uploadMiddleware.single("imagePicture"),userController.editShowCase)
 
 router.post(
   "/createreport",
