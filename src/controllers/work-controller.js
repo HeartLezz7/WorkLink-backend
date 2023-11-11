@@ -1,6 +1,7 @@
 const {
   STATUS_WORK_CREATE,
   STATUS_WORK_ADMINREVIEW,
+  STATUS_WORK_CANCEL,
 } = require("../configs/constants");
 const prisma = require("../models/prisma");
 const fs = require("fs/promises");
@@ -18,6 +19,12 @@ exports.createWork = async (req, res, next) => {
       data.workImage = url;
     }
     // console.log(data);
+    if (data.startDate) {
+      data.startDate = data.startDate + "T00:00:00Z";
+    }
+    if (data.endDate) {
+      data.endDate = data.endDate + "T00:00:00Z";
+    }
     const createWork = await prisma.work.create({
       data: {
         title: data.title,
@@ -26,8 +33,8 @@ exports.createWork = async (req, res, next) => {
         isOnsite: data.isOnsite,
         addressLat: data.addressLat,
         addressLong: data.addressLong,
-        startDate: data.startDate + "T00:00:00Z",
-        endDate: data.endDate + "T00:00:00Z",
+        startDate: data.startDate,
+        endDate: data.endDate,
         statusWork: STATUS_WORK_ADMINREVIEW,
         ownerId: req.user.id,
         categoryId: +data.categoryId,
@@ -76,6 +83,28 @@ exports.editWork = async (req, res, next) => {
     res.status(201).json({ editedWork });
   } catch (err) {
     next(err);
+  }
+};
+
+exports.cancleWork = async (req, res, next) => {
+  try {
+    console.log("first");
+    const { workId } = req.params;
+    const cancleWork = await prisma.work.update({
+      where: {
+        id: +workId,
+      },
+      data: {
+        statusWork: STATUS_WORK_CANCEL,
+      },
+      include: {
+        challenger: true,
+        category: true,
+      },
+    });
+    res.status(201).json({ cancleWork });
+  } catch (error) {
+    console.log(error);
   }
 };
 

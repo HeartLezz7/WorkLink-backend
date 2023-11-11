@@ -11,6 +11,7 @@ route.post(
   workController.createWork
 );
 route.patch("/editwork", authenticated, workController.editWork);
+route.patch("/cancle/:workId", authenticated, workController.cancleWork);
 route.get("/", workController.getAllWork);
 route.get("/getdelegatedworkbyid/:workId", workController.getDelegatedWorkById);
 route.delete("/delete/:id", workController.deleteWork);
