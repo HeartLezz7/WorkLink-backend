@@ -23,6 +23,7 @@ exports.createWork = async (req, res, next) => {
         title: data.title,
         description: data.description,
         price: +data.price,
+        isOnsite: data.isOnsite,
         addressLat: data.addressLat,
         addressLong: data.addressLong,
         startDate: data.startDate + "T00:00:00Z",
@@ -43,6 +44,41 @@ exports.createWork = async (req, res, next) => {
   }
 };
 
+exports.editWork = async (req, res, next) => {
+  try {
+    console.log(req.body);
+    const data = req.body;
+    if (!data.startDate.includes("T00")) {
+      data.startDate = data.startDate + "T00:00:00Z";
+    }
+    if (!data.endDate.includes("T00")) {
+      data.endDate = data.endDate + "T00:00:00Z";
+    }
+    const editedWork = await prisma.work.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        description: data.description,
+        price: +data.price,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        isOnsite: data.isOnsite,
+        addressLat: data.addressLat,
+        addressLong: data.addressLong,
+      },
+      include: {
+        challenger: true,
+        category: true,
+      },
+    });
+    // console.log(value);
+    res.status(201).json({ editedWork });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.getAllWork = async (req, res, next) => {
   try {
     const allWork = await prisma.work.findMany({
@@ -50,7 +86,9 @@ exports.getAllWork = async (req, res, next) => {
         challenger: true,
         category: true,
       },
-      orderBy: {},
+      orderBy: {
+        updatedAt: "desc",
+      },
     });
     // console.log(value);
     res.status(201).json({ allWork });

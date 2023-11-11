@@ -10,6 +10,7 @@ route.post(
   uploadMiddleware.single("workImage"),
   workController.createWork
 );
+route.patch("/editwork", authenticated, workController.editWork);
 route.get("/", workController.getAllWork);
 route.get("/getdelegatedworkbyid/:workId", workController.getDelegatedWorkById);
 route.delete("/delete/:id", workController.deleteWork);
