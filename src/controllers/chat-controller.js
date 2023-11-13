@@ -9,6 +9,7 @@ exports.getAllChatRoom = async (req, res, next) => {
       },
       include: { dealer: true, creater: true },
     });
+    console.log(allChatRoom, "all");
 
     res.status(200).json({ allChatRoom });
   } catch (err) {
@@ -23,7 +24,6 @@ exports.createRoom = async (req, res, next) => {
     const foundChatRoom = await prisma.chatRoom.findFirst({
       where: { dealerId: req.body.dealerId, createrId: req.user.id },
     });
-    console.log(foundChatRoom, "found");
     if (foundChatRoom) {
       createError("already have room", 400);
       return res.status(403).json({ message: "already havee chat room" });
@@ -54,9 +54,13 @@ exports.createRoom = async (req, res, next) => {
 exports.getChatById = async (req, res, next) => {
   try {
     const { chatRoomId } = req.params;
-    console.log(chatRoomId);
     const allMessage = await prisma.chatMessages.findMany({
       where: { chatRoomId: +chatRoomId },
+      include: {
+        receiver: {
+          select: { profileImage: true },
+        },
+      },
     });
     res.status(200).json({ allMessage });
   } catch (err) {
