@@ -8,6 +8,7 @@ const prisma = require("../models/prisma");
 const createError = require("../utils/create-error");
 const validator = require("../validators/validate-schema");
 const { userType } = require("@prisma/client");
+const { TRANSACTIONSTATUS_APPROVE } = require('../configs/constants')
 
 exports.register = async (req, res, next) => {
   try {
@@ -106,17 +107,29 @@ exports.login = async (req, res, next) => {
 };
 
 exports.withdrawCheck = async (req, res, next) => {
+  console.log('xxxxxxx');
   try {
-    console.log(req.body);
-    const { id, status } = req.body
-    console.log(id);
-    console.log(status);
-    const findTransaction = await prisma.Transaction.findFirst({
-      where: {
-        id
+
+    const value = req.body
+    const findTransaction = await prisma.transaction.create({
+      data: {
+        type: value.Type,
+        amount: value.Amount,
+        status: TRANSACTIONSTATUS_APPROVE,
+        userId: value.id
       }
     })
+
     console.log(findTransaction);
+    res.status(200).json({ MSG: "OK", findTransaction })
+
+    // if (findTransaction) {
+    //   await prisma.transaction.update({
+    //     where: {
+
+    //     }
+    //   })
+    // }
 
 
   } catch (error) {

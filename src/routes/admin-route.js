@@ -4,7 +4,7 @@ const adminController = require('../controllers/admin-controller')
 
 router.post('/register', adminController.register)
 router.post('/login', adminController.login)
-router.patch('/updatetype', adminController.withdrawCheck)
+router.post('/updatetype', adminController.withdrawCheck)
 
 
 module.exports = router
