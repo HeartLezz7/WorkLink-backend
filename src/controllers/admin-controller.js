@@ -106,14 +106,30 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.withdrawCheck = async (req, res, next) => {
-  console.log('xxxxxxx');
+exports.withDrawCheck = async (req, res, next) => {
   try {
 
     const value = req.body
 
+    const foundTransaction = await prisma.transaction.create({
+      data: {
+        type: value.Type,
+        amount: value.Amount,
+        status: TRANSACTIONSTATUS_APPROVE,
+        userId: value.id
+      }
+    })
 
+    res.status(200).json({ foundTransaction })
 
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.depositCheck = async (req, res, next) => {
+  try {
+    const value = req.body
 
     const findTransaction = await prisma.transaction.create({
       data: {
@@ -123,9 +139,7 @@ exports.withdrawCheck = async (req, res, next) => {
         userId: value.id
       }
     })
-    console.log(statusApprove, "<<<<<<<<");
 
-    // console.log(findTransaction);
     res.status(200).json({ MSG: "OK" })
 
   } catch (error) {
