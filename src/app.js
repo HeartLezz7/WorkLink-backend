@@ -24,6 +24,6 @@ app.use("/admin", adminRoute);
 app.use("/user", userRoute);
 app.use("/transaction", transactionRoute);
 app.use("/chat", chatRoute);
-app.use("report", reportRoute);
+app.use("/report", reportRoute);
 
 module.exports = server;
