@@ -111,6 +111,10 @@ exports.withdrawCheck = async (req, res, next) => {
   try {
 
     const value = req.body
+
+
+
+
     const findTransaction = await prisma.transaction.create({
       data: {
         type: value.Type,
@@ -119,20 +123,26 @@ exports.withdrawCheck = async (req, res, next) => {
         userId: value.id
       }
     })
+    console.log(statusApprove, "<<<<<<<<");
 
-    console.log(findTransaction);
-    res.status(200).json({ MSG: "OK", findTransaction })
-
-    // if (findTransaction) {
-    //   await prisma.transaction.update({
-    //     where: {
-
-    //     }
-    //   })
-    // }
-
+    // console.log(findTransaction);
+    res.status(200).json({ MSG: "OK" })
 
   } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.findApprove = async (req, res, next) => {
+  try {
+    const statusApprove = await prisma.transaction.findMany({
+      where: {
+        status: TRANSACTIONSTATUS_APPROVE
+      }
+    })
+    res.status(200).json({ MSG: "OK", statusApprove })
+  }
+  catch (error) {
     console.log(error);
   }
 }
