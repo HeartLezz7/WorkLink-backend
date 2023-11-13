@@ -1,7 +1,7 @@
 const fs = require("fs/promises");
 const prisma = require("../models/prisma");
 const { upload } = require("../utils/cloundinary-service");
-const createError = require('../utils/create-error')
+const createError = require("../utils/create-error");
 
 // hong edit complete
 exports.validateUser = async (req, res, next) => {
@@ -80,11 +80,9 @@ exports.getUserProfileById = async (req, res, next) => {
 // hong edit complete
 exports.updateProfile = async (req, res, next) => {
   try {
-    // console.log(req.user.userProfile);
     console.log(req.body);
 
     if (req.file?.path) {
-      // console.log(req.file.path);
       const url = await upload(req.file.path);
 
       req.body.profileImage = url;
@@ -153,32 +151,31 @@ exports.getAllShowCase = async (req, res, next) => {
   }
 };
 
-exports.deleteShowCasebyId = async (req,res,next) =>{
+exports.deleteShowCasebyId = async (req, res, next) => {
   try {
-      const {id} = req.params
-      const findCaseId = await  prisma.showCase.findFirst({
-        where:{
-          id : +id
-        }
-      })
-      if(!findCaseId){
-        return next(createError("Sorry do not have this item ID", 400))
-      }
-      await prisma.showCase.delete({
-        where:{
-          id:findCaseId.id
-        }
-      })
-      res.status(200).json({Message:"Show case Id deleted"})
+    const { id } = req.params;
+    const findCaseId = await prisma.showCase.findFirst({
+      where: {
+        id: +id,
+      },
+    });
+    if (!findCaseId) {
+      return next(createError("Sorry do not have this item ID", 400));
+    }
+    await prisma.showCase.delete({
+      where: {
+        id: findCaseId.id,
+      },
+    });
+    res.status(200).json({ Message: "Show case Id deleted" });
   } catch (error) {
-    next(error)
-    
+    next(error);
   }
-}
+};
 
-exports.editShowCase = async (req,res,next) =>{
+exports.editShowCase = async (req, res, next) => {
   try {
-    const { id , description} = req.body
+    const { id, description } = req.body;
     if (req.file?.path) {
       // console.log(req.file.path);
       const url = await upload(req.file.path);
@@ -190,20 +187,20 @@ exports.editShowCase = async (req,res,next) =>{
         id: +id,
       },
       data: {
-        imagePicture:req.body.imagePicture,
-        description
+        imagePicture: req.body.imagePicture,
+        description,
       },
     });
-    res.status(200).json({message:'Showcase item updated',updateShowcase})
+    res.status(200).json({ message: "Showcase item updated", updateShowcase });
   } catch (error) {
-    console.log(error)
-    next(error)
-  }finally {
+    console.log(error);
+    next(error);
+  } finally {
     if (req.file) {
       fs.unlink(req.file.path);
     }
   }
-}
+};
 
 exports.createReport = async (req, res, next) => {
   try {
@@ -244,11 +241,99 @@ exports.createReview = async (req, res, next) => {
 exports.getalluser = async (req, res, next) => {
   try {
     const alluser = await prisma.authUser.findMany({
+      where: {
+        userType: "user",
+      },
       include: {
         user: true,
       },
     });
     res.status(201).json({ alluser });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getverifyUser = async (req, res, next) => {
+  try {
+    const varify = await prisma.authUser.findMany({
+      where: {
+        verifyStatus: "pending",
+      },
+      include: {
+        user: true,
+      },
+    });
+    res.status(200).json({ varify });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getBannedUser = async (req, res, next) => {
+  try {
+    const isBanned = await prisma.authUser.findMany({
+      where: {
+        isBanned: true,
+      },
+      include: {
+        user: true,
+      },
+    });
+    res.status(200).json({ isBanned });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.verifyuser = async (req, res, next) => {
+  try {
+    const user = req.params;
+    const verifyid = await prisma.authUser.update({
+      where: {
+        id: +user.id,
+      },
+      data: {
+        verifyStatus: "verify",
+      },
+    });
+    res.status(201).json({ verifyid });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.banuser = async (req, res, next) => {
+  try {
+    const user = req.params;
+    const banid = await prisma.authUser.update({
+      where: {
+        id: +user.id,
+      },
+      data: {
+        isBanned: true,
+      },
+    });
+
+    res.status(201).json({ banid });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.unbanuser = async (req, res, next) => {
+  try {
+    const user = req.params;
+    const unbanid = await prisma.authUser.update({
+      where: {
+        id: +user.id,
+      },
+      data: {
+        isBanned: false,
+      },
+    });
+
+    res.status(201).json({ unbanid });
   } catch (err) {
     next(err);
   }
