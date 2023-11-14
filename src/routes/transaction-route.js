@@ -1,34 +1,46 @@
 const express = require("express");
-const route = express.Router();
+const router = express.Router();
 const transactionController = require("../controllers/transaction-controller");
 const authenticateMiddleware = require("../middlewares/authenticated");
 const upload = require("../middlewares/upload");
 const uploadMiddleware = require("../middlewares/upload");
 
-route.post(
+router.post(
   "/createtransaction",
   authenticateMiddleware,
   uploadMiddleware.single("slipImage"),
   transactionController.createTransaction
 );
 
-route.patch(
+router.patch(
   "/slipImage/:id",
   authenticateMiddleware,
   upload.single("slipImage"),
   transactionController.uploadSlipImage
 );
 
-route.get(
+router.get(
   "/alltransaction",
   authenticateMiddleware,
   transactionController.getAllTransaction
 );
 
-route.get(
-  "/getme/:userId",
+router.get(
+  "/:userProfileId",
   authenticateMiddleware,
   transactionController.getTransactionByuserId
 );
 
-module.exports = route;
+router.patch(
+  "/comfirm/:id",
+  authenticateMiddleware,
+  transactionController.comfirmstatus
+);
+
+router.patch(
+  "/reject/:id",
+  authenticateMiddleware,
+  transactionController.rejectstatus
+);
+
+module.exports = router;
