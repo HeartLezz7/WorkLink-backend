@@ -24,8 +24,9 @@ route.get(
   authenticateMiddleware,
   transactionController.getAllTransaction
 );
+
 route.get(
-  "/getme/:userId",
+  "/:userProfileId",
   authenticateMiddleware,
   transactionController.getTransactionByuserId
 );

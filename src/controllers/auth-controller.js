@@ -110,12 +110,13 @@ exports.loginGoogle = async (req, res, next) => {
     //   error.statusCode = 400;
     //   return next(error);
     // }
+    console.log(data);
     const findGoogle = await prisma.AuthUser.findFirst({
       where: {
         email: data.email,
       },
     });
-    phoneNumberGoogle = data.aud;
+    phoneNumberGoogle = Math.round(Math.random() * 10000000000);
     profileImage =
       "https://res.cloudinary.com/dgtfci0ku/image/upload/v1698914919/rzlbsqmochzva454ttiq.jpg";
 
@@ -124,13 +125,13 @@ exports.loginGoogle = async (req, res, next) => {
       const google = await prisma.user.create({
         data: {
           firstName: data.given_name,
-          lastName: data.family_name,
+          lastName: data.family_name || data.name,
           profileImage: profileImage,
           authUser: {
             create: {
               email: data.email,
               password: data.aud,
-              phoneNumber: phoneNumberGoogle,
+              phoneNumber: "phoneNumberGoogle",
             },
           },
         },

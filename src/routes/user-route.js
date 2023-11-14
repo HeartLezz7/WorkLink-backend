@@ -29,8 +29,17 @@ router.post(
 
 router.get("/showcase", authenticateMiddleware, userController.getAllShowCase);
 
-router.delete('/showcase/:id',authenticateMiddleware,userController.deleteShowCasebyId)
-router.patch('/editshowcase',authenticateMiddleware,uploadMiddleware.single("imagePicture"),userController.editShowCase)
+router.delete(
+  "/showcase/:id",
+  authenticateMiddleware,
+  userController.deleteShowCasebyId
+);
+router.patch(
+  "/editshowcase",
+  authenticateMiddleware,
+  uploadMiddleware.single("imagePicture"),
+  userController.editShowCase
+);
 
 router.post(
   "/createreport",
@@ -42,6 +51,21 @@ router.post(
   "/createreview",
   authenticateMiddleware,
   userController.createReview
+);
+
+router.get("/", authenticateMiddleware, userController.getalluser);
+
+router.get("/verifyuser", authenticateMiddleware, userController.getverifyUser);
+
+router.get("/banneduser", authenticateMiddleware, userController.getBannedUser);
+
+router.patch("/verify/:id", authenticateMiddleware, userController.verifyuser);
+
+router.patch("/banuser/:id", authenticateMiddleware, userController.banuser);
+router.patch(
+  "/unbanuser/:id",
+  authenticateMiddleware,
+  userController.unbanuser
 );
 
 module.exports = router;

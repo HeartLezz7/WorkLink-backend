@@ -8,96 +8,155 @@ const prisma = require("../models/prisma");
 const createError = require("../utils/create-error");
 const validator = require("../validators/validate-schema");
 const { userType } = require("@prisma/client");
+const { TRANSACTIONSTATUS_APPROVE } = require('../configs/constants')
 
 exports.register = async (req, res, next) => {
   try {
-    const adminRegister = validator(registerSchema, req.body, 401);
-
-    adminRegister.password = await bcrypt.hash(adminRegister.password, 10);
-
-    if (adminRegister.adminKey === process.env.SECRET_ADMIN) {
-      adminRegister.userType = "admin";
+    const { value, error } = registerSchema.validate(req.body);
+    if (error) {
+      error.statusCode = 400;
+      return next(error);
     }
-    console.log(adminRegister);
-    if (adminRegister.userType === "admin") {
-      adminRegister.verifyStatus = true;
+
+    if (value.adminKey != process.env.SECRET_ADMIN) {
+      return next(error);
     }
-    const createAdmin = await prisma.User.create({
+
+    value.password = await bcrypt.hash(value.password, 12);
+    value.profileImage =
+      "https://res.cloudinary.com/dgtfci0ku/image/upload/v1698914919/rzlbsqmochzva454ttiq.jpg";
+
+    const createAdmin = await prisma.user.create({
       data: {
-        email: adminRegister.email,
-        password: adminRegister.password,
-        phoneNumber: adminRegister.phoneNumber,
-        userType: adminRegister.userType,
-        verifyStatus: adminRegister.verifyStatus,
-        isBanned: false,
+        firstName: value.firstName,
+        lastName: value.lastName,
+        profileImage: value.profileImage,
+        authUser: {
+          create: {
+            email: value.email,
+            password: value.password,
+            phoneNumber: value.phoneNumber,
+            verifyStatus: "verify",
+            userType: "admin",
+          },
+        },
+      },
+      include: {
+        authUser: true,
       },
     });
+    console.log(createAdmin);
 
-    console.log(createAdmin.id);
-
-    const payload = { adminId: createAdmin.id };
+    const payload = { userId: createAdmin.id };
     const accessToken = jwt.sign(
       payload,
-      process.env.JWT_SECRET_KEY || "DefaultRandom",
+      process.env.JWT_SECRET_KEY || "asdfghjklmnbvcxzqwe",
       { expiresIn: process.env.JWT_EXPIRE }
     );
 
-    console.log(accessToken);
+    createAdmin.authUser = createAdmin.authUser[0];
 
-    delete createAdmin.password;
-    console.log(`log After Delete Password`, createAdmin);
+    delete createAdmin.authUser.password;
 
-    res.status(200).json({
-      message: "success Register From /admin/register res createAdmin ",
-      createAdmin,
-    });
-  } catch (err) {
-    next(err);
+    res.status(201).json({ accessToken, createAdmin });
+  } catch (error) {
+    console.log(error);
+    next(error);
   }
 };
 
 exports.login = async (req, res, next) => {
   try {
-    const adminLogin = validator(loginSchema, req.body, 401);
-    console.log(adminLogin);
+    const value = validator(loginSchema, req.body, 401);
 
-    const findAdminLogin = await prisma.User.findFirst({
+    const authUser = await prisma.authUser.findFirst({
       where: {
-        OR: [
-          { email: adminLogin.email },
-          { phoneNumber: adminLogin.phoneNumber },
-        ],
+        OR: [{ email: value.email }, { phoneNumber: value.phoneNumber }],
       },
     });
-    console.log(findAdminLogin);
 
-    if (!findAdminLogin) {
-      return next(createError("Invalid credential Email ", 400));
+    if (!authUser) {
+      return next(createError("invalid credential", 400));
     }
-    const isMatch = await bcrypt.compare(
-      adminLogin.password,
-      findAdminLogin.password
-    );
-
+    const isMatch = await bcrypt.compare(value.password, authUser.password);
     if (!isMatch) {
-      return next(createError("Invalid credential Password", 400));
+      return next(createError("invalid credential", 400));
     }
 
-    const payload = { adminId: findAdminLogin.id };
-
+    const admin = await prisma.user.findUnique({
+      where: {
+        id: authUser.userId,
+      },
+      include: {
+        authUser: true,
+      },
+    });
+    const payload = { userId: admin.id };
     const accessToken = jwt.sign(
       payload,
-      process.env.JWT_SECRET_KEY || "DefaultRandom",
+      process.env.JWT_SECRET_KEY || "asdfghjkloiuytrrewq",
       { expiresIn: process.env.JWT_EXPIRE }
     );
-
-    delete findAdminLogin.password;
-
-    res.status(200).json({
-      message: "success emailOrPhoneNumber Login From /admin/login",
-      findAdminLogin,
-    });
-  } catch (err) {
-    next(err);
+    admin.authUser = admin.authUser[0];
+    delete admin.authUser.password;
+    res.status(200).json({ accessToken, admin });
+  } catch (error) {
+    console.log(error);
+    next(error);
   }
 };
+
+exports.withDrawCheck = async (req, res, next) => {
+  try {
+
+    const value = req.body
+
+    const foundTransaction = await prisma.transaction.create({
+      data: {
+        type: value.Type,
+        amount: value.Amount,
+        status: TRANSACTIONSTATUS_APPROVE,
+        userId: value.id
+      }
+    })
+
+    res.status(200).json({ foundTransaction })
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.depositCheck = async (req, res, next) => {
+  try {
+    const value = req.body
+
+    const findTransaction = await prisma.transaction.create({
+      data: {
+        type: value.Type,
+        amount: value.Amount,
+        status: TRANSACTIONSTATUS_APPROVE,
+        userId: value.id
+      }
+    })
+
+    res.status(200).json({ MSG: "OK" })
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.findApprove = async (req, res, next) => {
+  try {
+    const statusApprove = await prisma.transaction.findMany({
+      where: {
+        status: TRANSACTIONSTATUS_APPROVE
+      }
+    })
+    res.status(200).json({ MSG: "OK", statusApprove })
+  }
+  catch (error) {
+    console.log(error);
+  }
+}

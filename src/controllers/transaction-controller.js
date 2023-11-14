@@ -60,11 +60,38 @@ exports.getTransactionByuserId = async (req, res, next) => {
 
 exports.getAllTransaction = async (req, res, next) => {
   try {
-    const alltransaction = await prisma.transaction.findMany({});
-    res.status(201).json({
-      message: "Success Get all transaction from /transaction/alltransaction",
-      alltransaction,
+    const alltransaction = await prisma.transaction.findMany({
+      include: {
+        work: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            authUser: {
+              select: {
+                email: true,
+                phoneNumber: true,
+              },
+            },
+          },
+        },
+      },
     });
+    res.status(201).json({ alltransaction });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getTransactionByuserProfileId = async (req, res, next) => {
+  try {
+    const { userProfileId } = req.params;
+    const transactionByuserProfileId = await prisma.transaction.findMany({
+      where: {
+        userProfileId: +userProfileId,
+      },
+    });
+    res.status(201).json({ transactionByuserProfileId });
   } catch (error) {
     next(error);
   }

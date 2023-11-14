@@ -7,17 +7,14 @@ const registerSchema = Joi.object({
     .trim()
     .required(),
   phoneNumber: Joi.string()
-    .pattern(/^[0-9]{10}$/)
-    .required(),
-  confirmPassword: Joi.string()
-    .valid(Joi.ref("password"))
-    .trim()
-    .required()
-    .strip(),
+    .allow(null, "")
+    .pattern(/^[0-9]{10}$/),
   userType: Joi.string(),
   verifyStatus: Joi.boolean(),
   isBanned: Joi.boolean(),
-  adminKey: Joi.string().required(),
+  firstName: Joi.string(),
+  lastName: Joi.string(),
+  adminKey: Joi.string(),
 });
 
 exports.registerSchema = registerSchema;
@@ -25,9 +22,7 @@ exports.registerSchema = registerSchema;
 const loginSchema = Joi.object({
   emailOrPhoneNumber: Joi.alternatives([
     Joi.string().email(),
-    Joi.string()
-      .pattern(/^[0-9]{10}$/)
-      .required(),
+    Joi.string().pattern(/^[0-9]{10}$/),
   ])
     .required()
     .strip(),
@@ -39,7 +34,11 @@ const loginSchema = Joi.object({
     is: Joi.string().pattern(/^[0-9]{10}$/),
     then: Joi.string().default(Joi.ref("emailOrPhoneNumber")),
   }),
-  password: Joi.string().required(),
+  password: Joi.string()
+    .pattern(/^[a-zA-Z0-9]{6,30}$/)
+    .trim()
+    .required(),
+  adminKey: Joi.string(),
 });
 
 exports.loginSchema = loginSchema;
