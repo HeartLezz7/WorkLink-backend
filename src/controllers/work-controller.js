@@ -198,3 +198,13 @@ exports.rejectwork = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.updateStatusWork = async (req, res, next) => {
+  try {
+    const status = req.body.status;
+    console.log(status);
+    res.status(201).json({ status });
+  } catch (err) {
+    next(err);
+  }
+};
