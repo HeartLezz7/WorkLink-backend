@@ -1,7 +1,7 @@
 const {
   STATUS_WORK_ADMINREVIEW,
-  STATUS_WORK_FINDING,
   STATUS_WORK_CANCEL,
+  STATUS_WORK_FINDING,
 } = require("../configs/constants");
 const prisma = require("../models/prisma");
 const fs = require("fs/promises");
@@ -16,15 +16,22 @@ exports.createWork = async (req, res, next) => {
       const url = await upload(req.file.path);
       data.workImage = url;
     }
+    if (data.startDate) {
+      data.startDate = data.startDate + "T00:00:00Z";
+    }
+    if (data.endDate) {
+      data.endDate = data.endDate + "T00:00:00Z";
+    }
     const createWork = await prisma.work.create({
       data: {
         title: data.title,
         description: data.description,
         price: +data.price,
+        isOnsite: data.isOnsite,
         addressLat: data.addressLat,
         addressLong: data.addressLong,
-        startDate: data.startDate + "T00:00:00Z",
-        endDate: data.endDate + "T00:00:00Z",
+        startDate: data.startDate,
+        endDate: data.endDate,
         statusWork: STATUS_WORK_ADMINREVIEW,
         ownerId: req.user.id,
         categoryId: +data.categoryId,
@@ -41,6 +48,63 @@ exports.createWork = async (req, res, next) => {
   }
 };
 
+exports.editWork = async (req, res, next) => {
+  try {
+    console.log(req.body);
+    const data = req.body;
+    if (!data.startDate.includes("T00")) {
+      data.startDate = data.startDate + "T00:00:00Z";
+    }
+    if (!data.endDate.includes("T00")) {
+      data.endDate = data.endDate + "T00:00:00Z";
+    }
+    const editedWork = await prisma.work.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        description: data.description,
+        price: +data.price,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        isOnsite: data.isOnsite,
+        addressLat: data.addressLat,
+        addressLong: data.addressLong,
+      },
+      include: {
+        challenger: true,
+        category: true,
+      },
+    });
+    // console.log(value);
+    res.status(201).json({ editedWork });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.cancleWork = async (req, res, next) => {
+  try {
+    console.log("first");
+    const { workId } = req.params;
+    const cancleWork = await prisma.work.update({
+      where: {
+        id: +workId,
+      },
+      data: {
+        statusWork: STATUS_WORK_CANCEL,
+      },
+      include: {
+        challenger: true,
+        category: true,
+      },
+    });
+    res.status(201).json({ cancleWork });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 exports.getAllWork = async (req, res, next) => {
   try {
     const allWork = await prisma.work.findMany({
@@ -48,7 +112,9 @@ exports.getAllWork = async (req, res, next) => {
         challenger: true,
         category: true,
       },
-      orderBy: {},
+      orderBy: {
+        updatedAt: "desc",
+      },
     });
     res.status(201).json({ allWork });
   } catch (err) {
@@ -135,7 +201,7 @@ exports.createChallenger = async (req, res, next) => {
 
     const createChallenger = await prisma.challenger.create({
       data: {
-        workId: workId,
+        workId: +workId,
         userId: req.user.id,
       },
     });

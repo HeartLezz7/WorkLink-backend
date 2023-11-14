@@ -10,6 +10,8 @@ router.post(
   uploadMiddleware.single("workImage"),
   workController.createWork
 );
+router.patch("/editwork", authenticated, workController.editWork);
+router.patch("/cancle/:workId", authenticated, workController.cancleWork);
 router.get("/", workController.getAllWork);
 router.get("/waitreview", workController.waitingreview);
 
