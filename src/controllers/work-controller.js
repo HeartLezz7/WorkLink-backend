@@ -2,7 +2,6 @@ const {
   STATUS_WORK_ADMINREVIEW,
   STATUS_WORK_CANCEL,
   STATUS_WORK_FINDING,
-  STATUS_WORK_CANCEL,
 } = require("../configs/constants");
 const prisma = require("../models/prisma");
 const fs = require("fs/promises");
@@ -202,7 +201,7 @@ exports.createChallenger = async (req, res, next) => {
 
     const createChallenger = await prisma.challenger.create({
       data: {
-        workId: workId,
+        workId: +workId,
         userId: req.user.id,
       },
     });
