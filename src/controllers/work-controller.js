@@ -264,3 +264,21 @@ exports.rejectwork = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.updateStatusWork = async (req, res, next) => {
+  try {
+    const { workId, workStatus } = req.body;
+    console.log(workStatus, "AAA");
+    const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
+    if (!foundWork) {
+      createError("not found work", 401);
+    }
+    const updateStatus = await prisma.work.update({
+      where: { id: foundWork.id },
+      data: { statusWork: workStatus },
+    });
+    res.status(201).json({ updateStatus });
+  } catch (err) {
+    next(err);
+  }
+};

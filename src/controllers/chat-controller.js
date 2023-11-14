@@ -57,7 +57,7 @@ exports.getChatById = async (req, res, next) => {
     const allMessage = await prisma.chatMessages.findMany({
       where: { chatRoomId: +chatRoomId },
       include: {
-        receiver: {
+        sender: {
           select: { profileImage: true },
         },
       },
