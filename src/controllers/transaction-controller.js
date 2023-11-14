@@ -1,3 +1,4 @@
+const { picture } = require("../configs/cloudinary");
 const { TRANSACTIONSTATUS_PENDING } = require("../configs/constants");
 const prisma = require("../models/prisma");
 const { upload } = require("../utils/cloundinary-service");
@@ -129,5 +130,40 @@ exports.uploadSlipImage = async (req, res, next) => {
     if (req.file) {
       fs.unlink(req.file.path);
     }
+  }
+};
+
+exports.comfirmstatus = async (req, res, next) => {
+  try {
+    const value = req.params;
+    const comfirmSlip = await prisma.transaction.update({
+      where: {
+        id: +value.id,
+      },
+      data: {
+        status: "approve",
+      },
+    });
+    res.status(201).json({ comfirmSlip });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.rejectstatus = async (req, res, next) => {
+  try {
+    const value = req.body;
+    const reject = await prisma.transaction.update({
+      where: {
+        id: req.params,
+      },
+      data: {
+        comment: value.comment,
+        status: "reject",
+      },
+    });
+    res.status(201).json({ reject });
+  } catch (error) {
+    next(error);
   }
 };
