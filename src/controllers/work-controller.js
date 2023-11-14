@@ -214,6 +214,23 @@ exports.createChallenger = async (req, res, next) => {
   }
 };
 
+exports.getSignWork = async (req, res, next) => {
+  try {
+    const mySignWork = await prisma.challenger.findMany({
+      where: {
+        userId: req.user.id,
+      },
+      include: {
+        work: true,
+      },
+    });
+    res.status(200).json({ mySignWork });
+    console.log(data);
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.waitingreview = async (req, res, next) => {
   try {
     const reviewWork = await prisma.work.findMany({
