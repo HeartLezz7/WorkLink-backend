@@ -1,6 +1,7 @@
 const {
-  STATUS_WORK_CREATE,
   STATUS_WORK_ADMINREVIEW,
+  STATUS_WORK_FINDING,
+  STATUS_WORK_CANCEL,
 } = require("../configs/constants");
 const prisma = require("../models/prisma");
 const fs = require("fs/promises");
@@ -9,15 +10,12 @@ const createError = require("../utils/create-error");
 
 exports.createWork = async (req, res, next) => {
   try {
-    // console.log(req.file);
     const data = req.body;
 
     if (req.file?.path) {
-      // console.log(req.file.path);
       const url = await upload(req.file.path);
       data.workImage = url;
     }
-    // console.log(data);
     const createWork = await prisma.work.create({
       data: {
         title: data.title,
@@ -52,7 +50,6 @@ exports.getAllWork = async (req, res, next) => {
       },
       orderBy: {},
     });
-    // console.log(value);
     res.status(201).json({ allWork });
   } catch (err) {
     next(err);
@@ -79,7 +76,6 @@ exports.getDelegatedWorkById = async (req, res, next) => {
         review: true,
       },
     });
-    // console.log(value);
     res.status(201).json({ work });
   } catch (err) {
     next(err);
@@ -139,7 +135,7 @@ exports.createChallenger = async (req, res, next) => {
 
     const createChallenger = await prisma.challenger.create({
       data: {
-        workId: +workId,
+        workId: workId,
         userId: req.user.id,
       },
     });
@@ -149,5 +145,56 @@ exports.createChallenger = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+
+exports.waitingreview = async (req, res, next) => {
+  try {
+    const reviewWork = await prisma.work.findMany({
+      where: {
+        statusWork: STATUS_WORK_ADMINREVIEW,
+      },
+      include: {
+        challenger: true,
+        category: true,
+      },
+    });
+    res.status(201).json({ reviewWork });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updatereview = async (req, res, next) => {
+  try {
+    const work = req.params;
+    const reviewed = await prisma.work.update({
+      where: {
+        id: +work.id,
+      },
+      data: {
+        statusWork: STATUS_WORK_FINDING,
+      },
+    });
+    res.status(201).json({ reviewed });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.rejectwork = async (req, res, next) => {
+  try {
+    const work = req.params;
+    const rejectwork = await prisma.work.update({
+      where: {
+        id: +work.id,
+      },
+      data: {
+        statusWork: STATUS_WORK_CANCEL,
+      },
+    });
+    res.status(201).json({ rejectwork });
+  } catch (err) {
+    next(err);
   }
 };

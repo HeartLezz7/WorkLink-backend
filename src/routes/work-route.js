@@ -1,24 +1,31 @@
 const express = require("express");
-const route = express.Router();
+const router = express.Router();
 const workController = require("../controllers/work-controller");
 const authenticated = require("../middlewares/authenticated");
 const uploadMiddleware = require("../middlewares/upload");
 
-route.post(
+router.post(
   "/creatework",
   authenticated,
   uploadMiddleware.single("workImage"),
   workController.createWork
 );
-route.get("/", workController.getAllWork);
-route.get("/getdelegatedworkbyid/:workId", workController.getDelegatedWorkById);
-route.delete("/delete/:id", workController.deleteWork);
-route.post("/createcategories", workController.createworkCategories);
-route.get("/allCategories", workController.getAllCategories);
-route.post(
+router.get("/", workController.getAllWork);
+router.get("/waitreview", workController.waitingreview);
+
+router.get(
+  "/getdelegatedworkbyid/:workId",
+  workController.getDelegatedWorkById
+);
+router.delete("/delete/:id", workController.deleteWork);
+router.post("/createcategories", workController.createworkCategories);
+router.get("/allCategories", workController.getAllCategories);
+router.post(
   "/challenger/:workId",
   authenticated,
   workController.createChallenger
 );
+router.patch("/review/:id", workController.updatereview);
+router.patch("/reject/:id", workController.rejectwork);
 
-module.exports = route;
+module.exports = router;

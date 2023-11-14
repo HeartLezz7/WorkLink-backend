@@ -62,7 +62,19 @@ exports.getAllTransaction = async (req, res, next) => {
   try {
     const alltransaction = await prisma.transaction.findMany({
       include: {
-        user: true,
+        work: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            authUser: {
+              select: {
+                email: true,
+                phoneNumber: true,
+              },
+            },
+          },
+        },
       },
     });
     res.status(201).json({ alltransaction });
