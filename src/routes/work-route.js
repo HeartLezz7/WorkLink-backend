@@ -29,5 +29,6 @@ router.post(
 );
 router.patch("/review/:id", workController.updatereview);
 router.patch("/reject/:id", workController.rejectwork);
+router.patch("/updateStatus", workController.updateStatusWork);
 
 module.exports = router;
