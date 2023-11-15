@@ -32,15 +32,28 @@ router.get(
 );
 
 router.patch(
-  "/comfirm/:id",
+  "/deposit/:id",
   authenticateMiddleware,
-  transactionController.comfirmstatus
+  transactionController.deposit
 );
 
 router.patch(
   "/reject/:id",
   authenticateMiddleware,
   transactionController.rejectstatus
+);
+
+router.patch(
+  "/walletupdate/:id",
+  authenticateMiddleware,
+  transactionController.walletupdate
+);
+
+router.patch(
+  "/withdraw/:id",
+  authenticateMiddleware,
+  uploadMiddleware.single("slipImage"),
+  transactionController.withdraw
 );
 
 module.exports = router;
