@@ -22,7 +22,11 @@ exports.createRoom = async (req, res, next) => {
     console.log(req.body);
     console.log(req.user);
     const foundChatRoom = await prisma.chatRoom.findFirst({
-      where: { dealerId: req.body.dealerId, createrId: req.user.id },
+      where: {
+        dealerId: req.body.dealerId,
+        createrId: req.user.id,
+        workId: +req.body.workId,
+      },
     });
     if (foundChatRoom) {
       createError("already have room", 400);

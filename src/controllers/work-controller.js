@@ -11,6 +11,7 @@ const createError = require("../utils/create-error");
 exports.createWork = async (req, res, next) => {
   try {
     const data = req.body;
+    console.log(data);
 
     if (req.file?.path) {
       const url = await upload(req.file.path);
@@ -22,6 +23,7 @@ exports.createWork = async (req, res, next) => {
     if (data.endDate) {
       data.endDate = data.endDate + "T00:00:00Z";
     }
+    console.log(data.endDate, "-------");
     const createWork = await prisma.work.create({
       data: {
         title: data.title,
