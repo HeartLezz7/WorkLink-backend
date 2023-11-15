@@ -23,6 +23,11 @@ exports.createWork = async (req, res, next) => {
     if (data.endDate) {
       data.endDate = data.endDate + "T00:00:00Z";
     }
+    if (+data.isOnsite) {
+      data.isOnsite = true;
+    } else {
+      data.isOnsite = false;
+    }
     console.log(data.endDate, "-------");
     const createWork = await prisma.work.create({
       data: {
@@ -69,7 +74,7 @@ exports.editWork = async (req, res, next) => {
         price: +data.price,
         startDate: data.startDate,
         endDate: data.endDate,
-        isOnsite: data.isOnsite,
+        isOnsite: +data.isOnsite,
         addressLat: data.addressLat,
         addressLong: data.addressLong,
       },
