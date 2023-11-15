@@ -11,10 +11,20 @@ router.post(
   reportController.createReport
 );
 
+router.get("/", authenticatedMiddleware, reportController.getAllReport);
+
 router.patch(
   "/submitReport",
   //   authenticatedMiddleware,
   reportController.submitReport
 );
+
+router.patch(
+  "/changestatus/:id",
+  authenticatedMiddleware,
+  reportController.changeStatus
+);
+
+router.delete("/delete/:id", authenticatedMiddleware, reportController.clear);
 
 module.exports = router;

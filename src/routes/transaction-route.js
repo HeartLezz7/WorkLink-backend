@@ -56,4 +56,10 @@ router.patch(
   transactionController.withdraw
 );
 
+router.get(
+  "/pendingStatus",
+  authenticateMiddleware,
+  transactionController.pendingStatus
+);
+
 module.exports = router;
