@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const transactionController = require("../controllers/transaction-controller");
 const authenticateMiddleware = require("../middlewares/authenticated");
-const upload = require("../middlewares/upload");
 const uploadMiddleware = require("../middlewares/upload");
 
 router.post(
@@ -15,7 +14,7 @@ router.post(
 router.patch(
   "/slipImage/:id",
   authenticateMiddleware,
-  upload.single("slipImage"),
+  uploadMiddleware.single("slipImage"),
   transactionController.uploadSlipImage
 );
 
