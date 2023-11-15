@@ -10,7 +10,7 @@ router.post(
   uploadMiddleware.single("workImage"),
   workController.createWork
 );
-router.get("/mysignwork", authenticated, workController.getSignWork);
+router.get("/mysignwork", authenticatedMiddleware, workController.getSignWork);
 router.patch("/editwork", authenticatedMiddleware, workController.editWork);
 router.patch(
   "/cancle/:workId",
@@ -34,7 +34,7 @@ router.post(
 );
 router.delete(
   "/signoutwork/:workId",
-  authenticated,
+  authenticatedMiddleware,
   workController.deleteChallenger
 );
 router.patch("/review/:id", workController.updatereview);
