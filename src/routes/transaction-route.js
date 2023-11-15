@@ -26,7 +26,7 @@ router.get(
 );
 
 router.get(
-  "/:userProfileId",
+  "/getme/:userId",
   authenticateMiddleware,
   transactionController.getTransactionByuserId
 );

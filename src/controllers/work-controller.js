@@ -11,6 +11,7 @@ const createError = require("../utils/create-error");
 exports.createWork = async (req, res, next) => {
   try {
     const data = req.body;
+    console.log(data);
 
     if (req.file?.path) {
       const url = await upload(req.file.path);
@@ -22,6 +23,7 @@ exports.createWork = async (req, res, next) => {
     if (data.endDate) {
       data.endDate = data.endDate + "T00:00:00Z";
     }
+    console.log(data.endDate, "-------");
     const createWork = await prisma.work.create({
       data: {
         title: data.title,
@@ -209,6 +211,45 @@ exports.createChallenger = async (req, res, next) => {
       Message: "Success Create Challenger /work/challenger/:workid",
       createChallenger,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteChallenger = async (req, res, next) => {
+  try {
+    const { workId } = req.params;
+    const existChallenger = await prisma.challenger.findFirst({
+      where: {
+        AND: [{ workId: +workId }, { userId: req.user.id }],
+      },
+    });
+    if (!existChallenger) {
+      return res.status(404).json({ error: "Challenger not found" });
+    }
+    const deleteChallenger = await prisma.challenger.delete({
+      where: {
+        id: existChallenger.id,
+      },
+    });
+    res.status(200).json({ deleteChallenger });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getSignWork = async (req, res, next) => {
+  try {
+    const mySignWork = await prisma.challenger.findMany({
+      where: {
+        userId: req.user.id,
+      },
+      include: {
+        work: true,
+      },
+    });
+    res.status(200).json({ mySignWork });
+    // console.log(data);
   } catch (error) {
     next(error);
   }
