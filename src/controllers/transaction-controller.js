@@ -63,6 +63,36 @@ exports.getTransactionByuserId = async (req, res, next) => {
   }
 };
 
+exports.pendingStatus = async (req, res, next) => {
+  try {
+    const getpendding = await prisma.transaction.findMany({
+      where: {
+        status: "pending",
+      },
+      include: {
+        work: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            wallet: true,
+            lastName: true,
+            authUser: {
+              select: {
+                email: true,
+                phoneNumber: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    res.status(201).json({ getpendding });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getAllTransaction = async (req, res, next) => {
   try {
     const alltransaction = await prisma.transaction.findMany({
