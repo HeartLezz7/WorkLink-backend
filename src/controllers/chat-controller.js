@@ -67,3 +67,18 @@ exports.getChatById = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getChatByWorkId = async (req, res, next) => {
+  try {
+    const { workId } = req.params;
+    const chatroom = await prisma.chatRoom.findFirst({
+      where: {
+        AND: [{ workId: +workId }, { dealerId: req.user.id }],
+      },
+    });
+    console.log(chatroom);
+    res.status(200).json({ chatroom });
+  } catch (err) {
+    next(err);
+  }
+};

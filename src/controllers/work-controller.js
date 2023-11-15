@@ -214,6 +214,28 @@ exports.createChallenger = async (req, res, next) => {
   }
 };
 
+exports.deleteChallenger = async (req, res, next) => {
+  try {
+    const { workId } = req.params;
+    const existChallenger = await prisma.challenger.findFirst({
+      where: {
+        AND: [{ workId: +workId }, { userId: req.user.id }],
+      },
+    });
+    if (!existChallenger) {
+      return res.status(404).json({ error: "Challenger not found" });
+    }
+    const deleteChallenger = await prisma.challenger.delete({
+      where: {
+        id: existChallenger.id,
+      },
+    });
+    res.status(200).json({ deleteChallenger });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getSignWork = async (req, res, next) => {
   try {
     const mySignWork = await prisma.challenger.findMany({
@@ -225,7 +247,7 @@ exports.getSignWork = async (req, res, next) => {
       },
     });
     res.status(200).json({ mySignWork });
-    console.log(data);
+    // console.log(data);
   } catch (error) {
     next(error);
   }
