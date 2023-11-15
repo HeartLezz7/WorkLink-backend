@@ -7,5 +7,9 @@ const authenticatedMiddleware = require("../middlewares/authenticated");
 router.get("/get", authenticatedMiddleware, chatController.getAllChatRoom);
 router.post("/createRoom", authenticatedMiddleware, chatController.createRoom);
 router.get("/getMessage/:chatRoomId", chatController.getChatById);
-
+router.get(
+  "/checkchatroom/:workId",
+  authenticatedMiddleware,
+  chatController.getChatByWorkId
+);
 module.exports = router;

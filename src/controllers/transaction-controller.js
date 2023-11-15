@@ -1,5 +1,9 @@
 const { picture } = require("../configs/cloudinary");
-const { TRANSACTIONSTATUS_PENDING } = require("../configs/constants");
+const {
+  TRANSACTIONSTATUS_PENDING,
+  TRANSACTIONSTATUS_APPROVE,
+  TRANSACTIONSTATUS_REJECT,
+} = require("../configs/constants");
 const prisma = require("../models/prisma");
 const { upload } = require("../utils/cloundinary-service");
 const fs = require("fs/promises");
@@ -59,6 +63,36 @@ exports.getTransactionByuserId = async (req, res, next) => {
   }
 };
 
+exports.pendingStatus = async (req, res, next) => {
+  try {
+    const getpendding = await prisma.transaction.findMany({
+      where: {
+        status: "pending",
+      },
+      include: {
+        work: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            wallet: true,
+            lastName: true,
+            authUser: {
+              select: {
+                email: true,
+                phoneNumber: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    res.status(201).json({ getpendding });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getAllTransaction = async (req, res, next) => {
   try {
     const alltransaction = await prisma.transaction.findMany({
@@ -66,7 +100,9 @@ exports.getAllTransaction = async (req, res, next) => {
         work: true,
         user: {
           select: {
+            id: true,
             firstName: true,
+            wallet: true,
             lastName: true,
             authUser: {
               select: {
@@ -133,15 +169,14 @@ exports.uploadSlipImage = async (req, res, next) => {
   }
 };
 
-exports.comfirmstatus = async (req, res, next) => {
+exports.deposit = async (req, res, next) => {
   try {
-    const value = req.params;
     const comfirmSlip = await prisma.transaction.update({
       where: {
-        id: +value.id,
+        id: +req.params.id,
       },
       data: {
-        status: "approve",
+        status: TRANSACTIONSTATUS_APPROVE,
       },
     });
     res.status(201).json({ comfirmSlip });
@@ -155,15 +190,60 @@ exports.rejectstatus = async (req, res, next) => {
     const value = req.body;
     const reject = await prisma.transaction.update({
       where: {
-        id: req.params,
+        id: +req.params.id,
       },
       data: {
         comment: value.comment,
-        status: "reject",
+        status: TRANSACTIONSTATUS_REJECT,
       },
     });
     res.status(201).json({ reject });
   } catch (error) {
     next(error);
+  }
+};
+
+exports.walletupdate = async (req, res, next) => {
+  try {
+    const money = req.body;
+    const wallet = await prisma.user.update({
+      where: {
+        id: +req.params.id,
+      },
+      data: {
+        wallet: money.wallet,
+      },
+    });
+    res.status(201).json({ wallet });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.withdraw = async (req, res, next) => {
+  try {
+    if (req.file?.path) {
+      const url = await upload(req.file.path);
+      req.body.slipImage = url;
+    }
+    const value = req.body;
+    console.log(value);
+    const deposit = await prisma.transaction.update({
+      where: {
+        id: +req.params.id,
+      },
+      data: {
+        slipImage: value.slipImage,
+        status: TRANSACTIONSTATUS_APPROVE,
+      },
+    });
+    console.log(deposit);
+    res.status(201).json({ deposit });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (req.file) {
+      fs.unlink(req.file.path);
+    }
   }
 };
