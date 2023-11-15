@@ -1,10 +1,9 @@
 require("dotenv").config();
+const fs = require("fs");
 
 const server = require("./app");
 
 const { Server } = require("socket.io");
-const createError = require("./utils/create-error");
-const { conversation } = require("./controllers/chat-controller");
 const prisma = require("./models/prisma");
 
 const io = new Server(server, {
@@ -26,17 +25,21 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
   console.log("connection");
-  socket.on("sent_message", async ({ message, senderId, receiverId, room }) => {
+  socket.on("sent_message", async ({ data, senderId, receiverId, room }) => {
+    // const file = fs.writeFileSync("received_image.jpg", Buffer.from(data));
+    // console.log(file, "checkCCCCCC");
+    // if (file) {
     const response = await prisma.chatMessages.create({
       data: {
         chatRoomId: room,
         senderId,
         receiverId,
-        message: message,
+        message: data,
       },
     });
     console.log(response);
     socket.to(onlineUser[String(receiverId)]).emit("receive_message", response);
+    // }
   });
   socket.on("disconnect", () => {
     console.log("user disconnected");

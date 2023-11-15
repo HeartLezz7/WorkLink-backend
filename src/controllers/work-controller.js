@@ -2,11 +2,16 @@ const {
   STATUS_WORK_ADMINREVIEW,
   STATUS_WORK_CANCEL,
   STATUS_WORK_FINDING,
+  TRANSACTIONTYEP_TRENSFER,
+  TRANSACTIONSTATUS_PENDING,
+  TRANSACTIONTYEP_RECIEVE,
+  TRANSACTIONSTATUS_APPROVE,
 } = require("../configs/constants");
 const prisma = require("../models/prisma");
 const fs = require("fs/promises");
 const { upload } = require("../utils/cloundinary-service");
 const createError = require("../utils/create-error");
+const { picture } = require("../configs/cloudinary");
 
 exports.createWork = async (req, res, next) => {
   try {
@@ -248,7 +253,7 @@ exports.updatereview = async (req, res, next) => {
   }
 };
 
-exports.rejectwork = async (req, res, next) => {
+exports.cancelWork = async (req, res, next) => {
   try {
     const work = req.params;
     const rejectwork = await prisma.work.update({
@@ -265,19 +270,161 @@ exports.rejectwork = async (req, res, next) => {
   }
 };
 
+exports.makeDealWork = async (req, res, next) => {
+  try {
+    const { workId, workStatus, workerId } = req.body;
+    console.log(req.body);
+    console.log(req.user);
+    const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
+    if (!foundWork) {
+      return createError("not found work", 401);
+    }
+    const foundOwner = await prisma.user.findFirst({
+      where: { id: req.user.id },
+    });
+    if (!foundOwner) {
+      return createError("not found user", 401);
+    }
+    const [updateStatus, createTransaction, updateWallet] =
+      await prisma.$transaction([
+        prisma.work.update({
+          where: { id: foundWork.id },
+          data: { statusWork: workStatus, workerId },
+        }),
+        prisma.transaction.create({
+          data: {
+            type: TRANSACTIONTYEP_TRENSFER,
+            amount: foundWork.price,
+            status: TRANSACTIONSTATUS_PENDING,
+            userId: req.user.id,
+            workId: +workId,
+          },
+        }),
+        prisma.user.update({
+          where: { id: req.user.id },
+          data: { wallet: +foundOwner.wallet - +foundWork.price },
+        }),
+      ]);
+
+    console.log(updateStatus, "A");
+    console.log(createTransaction, "B");
+    console.log(updateWallet, "C");
+
+    res.status(201).json({ updateStatus, createTransaction, updateWallet });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.acceptWork = async (req, res, next) => {
+  try {
+    const { workId, workStatus, workerId } = req.body;
+    console.log(req.body);
+    console.log(req.user);
+    const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
+    if (!foundWork) {
+      return createError("not found work", 401);
+    }
+    const foundOwner = await prisma.user.findFirst({
+      where: { id: req.user.id },
+    });
+    if (!foundOwner) {
+      return createError("not found user", 401);
+    }
+    const [updateStatus, createTransaction] = await prisma.$transaction([
+      prisma.work.update({
+        where: { id: foundWork.id },
+        data: { statusWork: workStatus, workerId },
+      }),
+      prisma.transaction.create({
+        data: {
+          type: TRANSACTIONTYEP_RECIEVE,
+          amount: foundWork.price,
+          status: TRANSACTIONSTATUS_PENDING,
+          userId: +workerId,
+          workId: +workId,
+        },
+      }),
+    ]);
+
+    console.log(updateStatus, "A");
+    console.log(createTransaction, "B");
+
+    res.status(201).json({ updateStatus, createTransaction });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.rejectWork = async (req, res, next) => {
+  try {
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.updateStatusWork = async (req, res, next) => {
   try {
     const { workId, workStatus } = req.body;
-    console.log(workStatus, "AAA");
     const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
     if (!foundWork) {
       createError("not found work", 401);
     }
+
     const updateStatus = await prisma.work.update({
       where: { id: foundWork.id },
       data: { statusWork: workStatus },
     });
     res.status(201).json({ updateStatus });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.successWork = async (req, res, next) => {
+  try {
+    const { workId, rating, detail } = req.body;
+    const foundTransaction = await prisma.transaction.findMany({
+      where: { workId: +workId },
+    });
+    if (!foundTransaction) {
+      return createError("not found transaction", 400);
+    }
+
+    const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
+    if (!foundWork) {
+      return createError("not found work", 400);
+    }
+
+    const worker = await prisma.user.findFirst({
+      where: { id: foundWork.workerId },
+    });
+
+    const [] = await prisma.$transaction[
+      ((await prisma.review.create({
+        data: {
+          rating,
+          detail,
+          workId: +workId,
+          reviewerId: foundWork.workerId,
+          reviewById: foundWork.ownerId,
+        },
+      }),
+      await prisma.transaction.updateMany({
+        where: {
+          workId: foundWork.id,
+        },
+        data: { type: TRANSACTIONSTATUS_APPROVE },
+      })),
+      await prisma.user.update({
+        where: {
+          id: foundWork.workerId,
+        },
+        data: { wallet: +worker.wallet + foundWork.price },
+      }))
+    ];
+
+    res.status(201).json({ foundTransaction });
   } catch (err) {
     next(err);
   }
