@@ -45,7 +45,7 @@ router.patch(
   workController.updateStatusWork
 );
 router.patch("/makeDeal", authenticatedMiddleware, workController.makeDealWork);
-router.patch("/accpetDeal", authenticatedMiddleware, workController.acceptWork);
+router.patch("/acceptDeal", authenticatedMiddleware, workController.acceptWork);
 router.patch("/rejectDeal", authenticatedMiddleware, workController.rejectWork);
 router.patch("/success", authenticatedMiddleware, workController.successWork);
 

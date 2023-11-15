@@ -446,8 +446,8 @@ exports.successWork = async (req, res, next) => {
       where: { id: foundWork.workerId },
     });
 
-    const [] = await prisma.$transaction[
-      ((await prisma.review.create({
+    const [reciew, transaction, user] = await prisma.$transaction[
+      ((prisma.review.create({
         data: {
           rating,
           detail,
@@ -456,21 +456,21 @@ exports.successWork = async (req, res, next) => {
           reviewById: foundWork.ownerId,
         },
       }),
-      await prisma.transaction.updateMany({
+      prisma.transaction.updateMany({
         where: {
           workId: foundWork.id,
         },
-        data: { type: TRANSACTIONSTATUS_APPROVE },
+        data: { status: TRANSACTIONSTATUS_APPROVE },
       })),
-      await prisma.user.update({
+      prisma.user.update({
         where: {
           id: foundWork.workerId,
         },
-        data: { wallet: +worker.wallet + foundWork.price },
+        data: { wallet: +worker.wallet + +foundWork.price },
       }))
     ];
 
-    res.status(201).json({ foundTransaction });
+    res.status(201).json({ reciew, transaction, user });
   } catch (err) {
     next(err);
   }
