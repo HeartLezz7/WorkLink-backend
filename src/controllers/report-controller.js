@@ -69,33 +69,37 @@ exports.changeStatus = async (req, res, next) => {
 
 exports.clear = async (req, res, next) => {
   try {
-    const deleteReport = await prisma.report.findFirst({
+    const isClear = await prisma.report.findFirst({
       where: {
         id: +req.params.id,
       },
     });
-    if (!deleteReport) {
+    if (!isClear) {
       return res.status(404).json({ message: "Don't have driver" });
     }
-    await prisma.report.delete({
+    await prisma.report.update({
       where: {
         id: +req.params.id,
       },
+      data: {
+        isClear: true,
+      },
     });
-    res.status(201).json({ deleteReport });
+    res.status(201).json({ isClear });
   } catch (err) {
     next(err);
   }
 };
-exports.submitReport = async (req, res, next) => {
+
+exports.getisClear = async (req, res, next) => {
   try {
-    if (req.body.message === "approve") {
-      console.log(req.body.message, "yes");
-    } else {
-      console.log(req.body.message, "no");
-    }
-    res.status(201).json({ msg: "success" });
-  } catch (err) {
-    next(err);
+    const isClear = await prisma.report.findMany({
+      where: {
+        isClear: false,
+      },
+    });
+    res.status(200).json({ isClear });
+  } catch (error) {
+    next(error);
   }
 };
