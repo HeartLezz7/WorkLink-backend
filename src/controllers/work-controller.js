@@ -102,10 +102,11 @@ exports.editWork = async (req, res, next) => {
   }
 };
 
-exports.cancleWork = async (req, res, next) => {
+exports.cancelWork = async (req, res, next) => {
   try {
     const { workId } = req.params;
-    const cancleWork = await prisma.work.update({
+    console.log(workId);
+    const cancelWork = await prisma.work.update({
       where: {
         id: +workId,
       },
@@ -117,7 +118,7 @@ exports.cancleWork = async (req, res, next) => {
         category: true,
       },
     });
-    res.status(201).json({ cancleWork });
+    res.status(201).json({ cancelWork });
   } catch (error) {
     next(error);
   }
@@ -196,6 +197,8 @@ exports.createworkCategories = async (req, res, next) => {
 exports.getAllCategories = async (req, res, next) => {
   try {
     const allCategories = await prisma.workCategories.findMany({});
+
+    res.status(200).json({ allCategories });
   } catch (error) {
     next(error);
   }
@@ -296,23 +299,6 @@ exports.updatereview = async (req, res, next) => {
       },
     });
     res.status(201).json({ reviewed });
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.cancelWork = async (req, res, next) => {
-  try {
-    const work = req.params;
-    const rejectwork = await prisma.work.update({
-      where: {
-        id: +work.id,
-      },
-      data: {
-        statusWork: STATUS_WORK_CANCEL,
-      },
-    });
-    res.status(201).json({ rejectwork });
   } catch (err) {
     next(err);
   }

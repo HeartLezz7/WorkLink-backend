@@ -144,7 +144,12 @@ exports.createShowCase = async (req, res, next) => {
 
 exports.getAllShowCase = async (req, res, next) => {
   try {
-    const getShowCase = await prisma.showCase.findMany({});
+    const { id } = req.params;
+    const getShowCase = await prisma.showCase.findMany({
+      where: {
+        userId: +id,
+      },
+    });
     res.status(201).json({ getShowCase });
   } catch (err) {
     next(err);

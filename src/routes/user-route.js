@@ -27,7 +27,11 @@ router.post(
   userController.createShowCase
 );
 
-router.get("/showcase", authenticateMiddleware, userController.getAllShowCase);
+router.get(
+  "/showcase/:id",
+  authenticateMiddleware,
+  userController.getAllShowCase
+);
 
 router.delete(
   "/showcase/:id",
