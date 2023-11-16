@@ -6,6 +6,7 @@ const {
   TRANSACTIONSTATUS_PENDING,
   TRANSACTIONTYEP_RECIEVE,
   TRANSACTIONSTATUS_APPROVE,
+  STATUS_WORK_SUCCESS,
 } = require("../configs/constants");
 const prisma = require("../models/prisma");
 const fs = require("fs/promises");
@@ -27,6 +28,11 @@ exports.createWork = async (req, res, next) => {
     }
     if (data.endDate) {
       data.endDate = data.endDate + "T00:00:00Z";
+    }
+    if (+data.isOnsite) {
+      data.isOnsite = true;
+    } else {
+      data.isOnsite = false;
     }
     console.log(data.endDate, "-------");
     const createWork = await prisma.work.create({
@@ -74,7 +80,7 @@ exports.editWork = async (req, res, next) => {
         price: +data.price,
         startDate: data.startDate,
         endDate: data.endDate,
-        isOnsite: data.isOnsite,
+        isOnsite: +data.isOnsite,
         addressLat: data.addressLat,
         addressLong: data.addressLong,
       },
@@ -441,31 +447,42 @@ exports.successWork = async (req, res, next) => {
       where: { id: foundWork.workerId },
     });
 
-    const [] = await prisma.$transaction[
-      ((await prisma.review.create({
-        data: {
-          rating,
-          detail,
-          workId: +workId,
-          reviewerId: foundWork.workerId,
-          reviewById: foundWork.ownerId,
-        },
-      }),
-      await prisma.transaction.updateMany({
-        where: {
-          workId: foundWork.id,
-        },
-        data: { type: TRANSACTIONSTATUS_APPROVE },
-      })),
-      await prisma.user.update({
-        where: {
-          id: foundWork.workerId,
-        },
-        data: { wallet: +worker.wallet + foundWork.price },
-      }))
-    ];
+    const [review, updatedWork, updatedTransactions, updatedUser] =
+      await prisma.$transaction([
+        prisma.review.create({
+          data: {
+            rating,
+            detail,
+            workId: +workId,
+            reviewerId: foundWork.workerId,
+            reviewById: foundWork.ownerId,
+          },
+        }),
+        prisma.work.update({
+          where: {
+            id: +workId,
+          },
+          data: {
+            statusWork: STATUS_WORK_SUCCESS,
+          },
+        }),
+        prisma.transaction.updateMany({
+          where: {
+            workId: foundWork.id,
+          },
+          data: { status: TRANSACTIONSTATUS_APPROVE },
+        }),
+        prisma.user.update({
+          where: {
+            id: foundWork.workerId,
+          },
+          data: { wallet: { increment: +foundWork.price } }, // increment the wallet value
+        }),
+      ]);
 
-    res.status(201).json({ foundTransaction });
+    res
+      .status(201)
+      .json({ review, updatedWork, updatedTransactions, updatedUser });
   } catch (err) {
     next(err);
   }
