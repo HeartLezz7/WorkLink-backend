@@ -405,6 +405,32 @@ exports.acceptWork = async (req, res, next) => {
 
 exports.rejectWork = async (req, res, next) => {
   try {
+    const foundWork = await prisma.work.findFirst({
+      where: { id: +req.body.id },
+    });
+    if (!foundWork) {
+      return createError("notfound work", 400);
+    }
+    const foundTransaction = await prisma.transaction.findFirst({
+      where: {
+        userId: +req.body.workerId,
+        workId: foundWork.workerId,
+      },
+    });
+    const rejectWork = await prisma.work.update({
+      where: {
+        id: foundWork.id,
+      },
+      data: {
+        statusWork: STATUS_WORK_FINDING,
+        workerId: null,
+      },
+    });
+
+    const deleteTransaction = await prisma.transaction.delete({
+      where: { id: foundTransaction.id },
+    });
+    res.status(201).json({ message: "reject work" });
   } catch (err) {
     next(err);
   }
