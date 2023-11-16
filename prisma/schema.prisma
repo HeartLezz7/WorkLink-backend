@@ -129,6 +129,7 @@ model Work {
   description String          @db.Text
   isOnsite    Boolean         @default(false)
   price       Decimal         @db.Decimal(10, 2)
+  addressName String?
   addressLat  String?
   addressLong String?
   createdAt   DateTime        @default(now())
@@ -190,6 +191,7 @@ model Report {
   id         Int      @id @default(autoincrement())
   detail     String
   createdAt  DateTime @default(now())
+  isClear    Boolean  @default(false)
   workId     Int
   work       Work     @relation(fields: [workId], references: [id])
   reportById Int
