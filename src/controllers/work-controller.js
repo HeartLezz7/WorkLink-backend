@@ -13,6 +13,7 @@ const fs = require("fs/promises");
 const { upload } = require("../utils/cloundinary-service");
 const createError = require("../utils/create-error");
 const { picture } = require("../configs/cloudinary");
+const { error } = require("console");
 
 exports.createWork = async (req, res, next) => {
   try {
@@ -487,3 +488,22 @@ exports.successWork = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getlatlng = async (req,res,next)=>{
+  try{
+    const latlng = await prisma.work.findMany({
+      where:{
+        isOnsite:true,
+        statusWork:STATUS_WORK_FINDING
+      },select:{
+        addressLat:true,
+        addressLong:true
+      }
+    });
+   
+    console.log(latlng,"xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    res.status(200).json({ latlng });
+  }catch(err){
+    console.log(error)
+  }
+}
