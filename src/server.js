@@ -29,8 +29,6 @@ io.on("connection", (socket) => {
   socket.on(
     "sent_message",
     async ({ message, senderId, receiverId, room, type }) => {
-      console.log(senderId, onlineUser[String(senderId)], "sender");
-      console.log(receiverId, "recies");
       if (type == "file") {
         const fileName = "" + Date.now() + Math.round(Math.random() * 1000000);
         const path = `public/${fileName}.jpg`;
@@ -45,7 +43,6 @@ io.on("connection", (socket) => {
             message: url,
           },
         });
-        console.log(response, "file");
 
         io.to([
           onlineUser[String(receiverId)],

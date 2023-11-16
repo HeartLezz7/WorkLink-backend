@@ -13,6 +13,7 @@ const fs = require("fs/promises");
 const { upload } = require("../utils/cloundinary-service");
 const createError = require("../utils/create-error");
 const { picture } = require("../configs/cloudinary");
+const { date } = require("joi");
 
 exports.createWork = async (req, res, next) => {
   try {
@@ -301,23 +302,6 @@ exports.updatereview = async (req, res, next) => {
   }
 };
 
-exports.cancelWork = async (req, res, next) => {
-  try {
-    const work = req.params;
-    const rejectwork = await prisma.work.update({
-      where: {
-        id: +work.id,
-      },
-      data: {
-        statusWork: STATUS_WORK_CANCEL,
-      },
-    });
-    res.status(201).json({ rejectwork });
-  } catch (err) {
-    next(err);
-  }
-};
-
 exports.makeDealWork = async (req, res, next) => {
   try {
     const { workId, workStatus, workerId } = req.body;
@@ -365,9 +349,16 @@ exports.acceptWork = async (req, res, next) => {
     if (!foundWork) {
       return createError("not found work", 401);
     }
+    let fee = (+foundWork.price * 0.05).toFixed(2);
+
     const foundOwner = await prisma.user.findFirst({
       where: { id: req.user.id },
     });
+
+    const foundSystem = await prisma.authUser.findFirst({
+      where: { userType: "system" },
+    });
+
     if (!foundOwner) {
       return createError("not found user", 401);
     }
@@ -376,14 +367,23 @@ exports.acceptWork = async (req, res, next) => {
         where: { id: foundWork.id },
         data: { statusWork: workStatus, workerId },
       }),
-      prisma.transaction.create({
-        data: {
-          type: TRANSACTIONTYEP_RECIEVE,
-          amount: foundWork.price,
-          status: TRANSACTIONSTATUS_PENDING,
-          userId: +workerId,
-          workId: +workId,
-        },
+      prisma.transaction.createMany({
+        data: [
+          {
+            type: TRANSACTIONTYEP_RECIEVE,
+            amount: +foundWork.price - fee,
+            status: TRANSACTIONSTATUS_PENDING,
+            userId: +workerId,
+            workId: +workId,
+          },
+          {
+            type: TRANSACTIONTYEP_RECIEVE,
+            amount: fee,
+            status: TRANSACTIONSTATUS_PENDING,
+            userId: foundSystem.id,
+            workId: +workId,
+          },
+        ],
       }),
     ]);
     res.status(201).json({ updateStatus, createTransaction });
@@ -400,25 +400,38 @@ exports.rejectWork = async (req, res, next) => {
     if (!foundWork) {
       return createError("notfound work", 400);
     }
+    const foundOwner = await prisma.user.findFirst({
+      where: { id: foundWork.ownerId },
+    });
     const foundTransaction = await prisma.transaction.findFirst({
       where: {
-        userId: +req.body.workerId,
-        workId: foundWork.workerId,
-      },
-    });
-    const rejectWork = await prisma.work.update({
-      where: {
-        id: foundWork.id,
-      },
-      data: {
-        statusWork: STATUS_WORK_FINDING,
-        workerId: null,
+        userId: foundWork.ownerId,
+        workId: foundWork.id,
       },
     });
 
-    const deleteTransaction = await prisma.transaction.delete({
-      where: { id: foundTransaction.id },
-    });
+    const [updateWork, deleteOwnerTransaction, updateWallet] =
+      await prisma.$transaction([
+        prisma.work.update({
+          where: {
+            id: foundWork.id,
+          },
+          data: {
+            statusWork: STATUS_WORK_FINDING,
+            workerId: null,
+          },
+        }),
+        prisma.transaction.delete({
+          where: { id: foundTransaction.id },
+        }),
+        prisma.user.update({
+          where: { id: foundOwner.id },
+          data: {
+            wallet: +foundOwner.wallet + +foundWork.price,
+          },
+        }),
+      ]);
+
     res.status(201).json({ message: "reject work" });
   } catch (err) {
     next(err);
