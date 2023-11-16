@@ -225,6 +225,31 @@ exports.createReport = async (req, res, next) => {
   }
 };
 
+exports.getReviewById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userReviews = await prisma.review.findMany({
+      where: {
+        reviewerId: +id,
+      },
+      include: {
+        reviewBy: {
+          select: {
+            profileImage: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+    console.log(userReviews);
+
+    res.status(200).json({ userReviews });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.createReview = async (req, res, next) => {
   try {
     const value = req.body;

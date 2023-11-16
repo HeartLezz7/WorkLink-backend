@@ -51,6 +51,12 @@ router.post(
   userController.createReport
 );
 
+router.get(
+  "/userprofilereview/:id",
+  authenticateMiddleware,
+  userController.getReviewById
+);
+
 router.post(
   "/createreview",
   authenticateMiddleware,
