@@ -25,7 +25,7 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
   console.log("connection");
-  socket.on("sent_message", async ({ data, senderId, receiverId, room }) => {
+  socket.on("sent_message", async ({ message, senderId, receiverId, room }) => {
     // const file = fs.writeFileSync("received_image.jpg", Buffer.from(data));
     // console.log(file, "checkCCCCCC");
     // if (file) {
@@ -34,7 +34,7 @@ io.on("connection", (socket) => {
         chatRoomId: room,
         senderId,
         receiverId,
-        message: data,
+        message,
       },
     });
     console.log(response);
