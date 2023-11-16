@@ -38,7 +38,6 @@ router.delete(
   workController.deleteChallenger
 );
 router.patch("/review/:id", workController.updatereview);
-router.patch("/reject/:id", workController.cancelWork);
 router.patch(
   "/updateStatus",
   authenticatedMiddleware,
