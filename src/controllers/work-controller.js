@@ -17,7 +17,6 @@ const { picture } = require("../configs/cloudinary");
 exports.createWork = async (req, res, next) => {
   try {
     const data = req.body;
-    console.log(data);
 
     if (req.file?.path) {
       const url = await upload(req.file.path);
@@ -34,7 +33,6 @@ exports.createWork = async (req, res, next) => {
     } else {
       data.isOnsite = false;
     }
-    console.log(data.endDate, "-------");
     const createWork = await prisma.work.create({
       data: {
         title: data.title,
@@ -63,7 +61,6 @@ exports.createWork = async (req, res, next) => {
 
 exports.editWork = async (req, res, next) => {
   try {
-    console.log(req.body);
     const data = req.body;
     if (!data.startDate.includes("T00")) {
       data.startDate = data.startDate + "T00:00:00Z";
@@ -89,7 +86,6 @@ exports.editWork = async (req, res, next) => {
         category: true,
       },
     });
-    // console.log(value);
     res.status(201).json({ editedWork });
   } catch (err) {
     next(err);
@@ -98,7 +94,6 @@ exports.editWork = async (req, res, next) => {
 
 exports.cancleWork = async (req, res, next) => {
   try {
-    console.log("first");
     const { workId } = req.params;
     const cancleWork = await prisma.work.update({
       where: {
@@ -114,7 +109,7 @@ exports.cancleWork = async (req, res, next) => {
     });
     res.status(201).json({ cancleWork });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -177,7 +172,6 @@ exports.deleteWork = async (req, res, next) => {
 exports.createworkCategories = async (req, res, next) => {
   try {
     const value = req.body;
-    console.log(value);
     const workCategories = await prisma.workCategories.create({
       data: {
         category: value.category,
@@ -192,8 +186,6 @@ exports.createworkCategories = async (req, res, next) => {
 exports.getAllCategories = async (req, res, next) => {
   try {
     const allCategories = await prisma.workCategories.findMany({});
-    console.log(allCategories);
-    res.status(201).json({ allCategories });
   } catch (error) {
     next(error);
   }
@@ -260,7 +252,6 @@ exports.getSignWork = async (req, res, next) => {
       },
     });
     res.status(200).json({ mySignWork });
-    // console.log(data);
   } catch (error) {
     next(error);
   }
@@ -320,8 +311,6 @@ exports.cancelWork = async (req, res, next) => {
 exports.makeDealWork = async (req, res, next) => {
   try {
     const { workId, workStatus, workerId } = req.body;
-    console.log(req.body);
-    console.log(req.user);
     const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
     if (!foundWork) {
       return createError("not found work", 401);
@@ -353,10 +342,6 @@ exports.makeDealWork = async (req, res, next) => {
         }),
       ]);
 
-    console.log(updateStatus, "A");
-    console.log(createTransaction, "B");
-    console.log(updateWallet, "C");
-
     res.status(201).json({ updateStatus, createTransaction, updateWallet });
   } catch (err) {
     next(err);
@@ -366,8 +351,6 @@ exports.makeDealWork = async (req, res, next) => {
 exports.acceptWork = async (req, res, next) => {
   try {
     const { workId, workStatus, workerId } = req.body;
-    console.log(req.body);
-    console.log(req.user);
     const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
     if (!foundWork) {
       return createError("not found work", 401);
@@ -393,10 +376,6 @@ exports.acceptWork = async (req, res, next) => {
         },
       }),
     ]);
-
-    console.log(updateStatus, "A");
-    console.log(createTransaction, "B");
-
     res.status(201).json({ updateStatus, createTransaction });
   } catch (err) {
     next(err);

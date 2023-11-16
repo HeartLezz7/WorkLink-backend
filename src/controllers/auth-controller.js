@@ -105,12 +105,6 @@ exports.getMe = async (req, res, next) => {
 exports.loginGoogle = async (req, res, next) => {
   try {
     const data = req.body;
-    console.log(data.email);
-    // if (error) {
-    //   error.statusCode = 400;
-    //   return next(error);
-    // }
-    console.log(data);
     const findGoogle = await prisma.AuthUser.findFirst({
       where: {
         email: data.email,
@@ -120,7 +114,6 @@ exports.loginGoogle = async (req, res, next) => {
     profileImage =
       "https://res.cloudinary.com/dgtfci0ku/image/upload/v1698914919/rzlbsqmochzva454ttiq.jpg";
 
-    console.log(findGoogle, "google");
     if (!findGoogle) {
       const google = await prisma.user.create({
         data: {
@@ -163,8 +156,6 @@ exports.loginGoogle = async (req, res, next) => {
           authUser: true,
         },
       });
-
-      console.log("165", google);
       const payload = { userId: google.id };
       const accessToken = jwt.sign(
         payload,
@@ -172,7 +163,6 @@ exports.loginGoogle = async (req, res, next) => {
         { expiresIn: process.env.JWT_EXPIRE }
       );
 
-      console.log(google, "google authuser");
       google.authUser = google.authUser;
 
       delete google.authUser.password;

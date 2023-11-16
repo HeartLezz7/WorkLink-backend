@@ -10,7 +10,6 @@ exports.getAllChatRoom = async (req, res, next) => {
       include: { dealer: true, creater: true },
       orderBy: { id: "desc" },
     });
-    console.log(allChatRoom, "all");
 
     res.status(200).json({ allChatRoom });
   } catch (err) {
@@ -20,8 +19,6 @@ exports.getAllChatRoom = async (req, res, next) => {
 
 exports.createRoom = async (req, res, next) => {
   try {
-    console.log(req.body);
-    console.log(req.user);
     const foundChatRoom = await prisma.chatRoom.findFirst({
       where: {
         dealerId: +req.body.dealerId,

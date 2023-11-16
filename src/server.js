@@ -29,13 +29,13 @@ io.on("connection", (socket) => {
   socket.on(
     "sent_message",
     async ({ message, senderId, receiverId, room, type }) => {
+      console.log(senderId, onlineUser[String(senderId)], "sender");
+      console.log(receiverId, "recies");
       if (type == "file") {
         const fileName = "" + Date.now() + Math.round(Math.random() * 1000000);
         const path = `public/${fileName}.jpg`;
-        console.log(path, "AAA");
         await fs.writeFile(path, message);
         const url = await upload(path);
-        console.log(url, "cloudinary");
         fs.unlink(path);
         const response = await prisma.chatMessages.create({
           data: {
@@ -45,11 +45,12 @@ io.on("connection", (socket) => {
             message: url,
           },
         });
-        console.log(response);
+        console.log(response, "file");
 
-        socket
-          .to(onlineUser[String(receiverId)])
-          .emit("receive_message", response);
+        io.to([
+          onlineUser[String(receiverId)],
+          onlineUser[String(senderId)],
+        ]).emit("receive_message", response);
       } else {
         const response = await prisma.chatMessages.create({
           data: {
@@ -65,9 +66,10 @@ io.on("connection", (socket) => {
           },
         });
 
-        socket
-          .to(onlineUser[String(receiverId)])
-          .emit("receive_message", response);
+        io.to([
+          onlineUser[String(receiverId)],
+          onlineUser[String(senderId)],
+        ]).emit("receive_message", response);
       }
     }
   );
