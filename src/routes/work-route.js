@@ -13,9 +13,9 @@ router.post(
 router.get("/mysignwork", authenticatedMiddleware, workController.getSignWork);
 router.patch("/editwork", authenticatedMiddleware, workController.editWork);
 router.patch(
-  "/cancle/:workId",
+  "/cancel/:workId",
   authenticatedMiddleware,
-  workController.cancleWork
+  workController.cancelWork
 );
 router.get("/", workController.getAllWork);
 router.get("/waitreview", workController.waitingreview);
