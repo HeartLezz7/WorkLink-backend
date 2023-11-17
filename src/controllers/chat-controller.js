@@ -3,14 +3,13 @@ const createError = require("../utils/create-error");
 
 exports.getAllChatRoom = async (req, res, next) => {
   try {
-    const allChatRoom = await prisma.chatRoom.findMany({
-      where: {
-        OR: [{ createrId: req.user.id }, { dealerId: req.user.id }],
+    const allChatRoom = await prisma.chatMessages.findMany({
+      include: {
+        chatRoom: { include: { dealer: true, creater: true } },
       },
-      include: { dealer: true, creater: true },
-      orderBy: { id: "desc" },
+      orderBy: { createdAt: "desc" },
+      distinct: ["chatRoomId"],
     });
-
     res.status(200).json({ allChatRoom });
   } catch (err) {
     next(err);
