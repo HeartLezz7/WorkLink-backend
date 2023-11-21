@@ -518,3 +518,21 @@ exports.successWork = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getlatlng = async (req,res,next)=>{
+  try{
+    const latlng = await prisma.work.findMany({
+      where:{
+        isOnsite:true,
+        statusWork:STATUS_WORK_FINDING
+      },select:{
+        addressLat:true,
+        addressLong:true
+      }
+    });
+    // console.log(latlng,"xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    res.status(200).json({ latlng });
+  }catch(err){
+    console.log(error)
+  }
+}
