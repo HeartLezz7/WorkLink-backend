@@ -13,12 +13,11 @@ const fs = require("fs/promises");
 const { upload } = require("../utils/cloundinary-service");
 const createError = require("../utils/create-error");
 const { picture } = require("../configs/cloudinary");
-const { error } = require("console");
+const { date } = require("joi");
 
 exports.createWork = async (req, res, next) => {
   try {
     const data = req.body;
-    console.log(data);
 
     if (req.file?.path) {
       const url = await upload(req.file.path);
@@ -35,15 +34,15 @@ exports.createWork = async (req, res, next) => {
     } else {
       data.isOnsite = false;
     }
-    console.log(data.endDate, "-------");
     const createWork = await prisma.work.create({
       data: {
         title: data.title,
         description: data.description,
         price: +data.price,
         isOnsite: data.isOnsite,
-        addressLat: data.addressLat,
-        addressLong: data.addressLong,
+        addressName: data.addressName,
+        addressLat: `${data.addressLat}`,
+        addressLong: `${data.addressLong}`,
         startDate: data.startDate,
         endDate: data.endDate,
         statusWork: STATUS_WORK_ADMINREVIEW,
@@ -64,7 +63,6 @@ exports.createWork = async (req, res, next) => {
 
 exports.editWork = async (req, res, next) => {
   try {
-    console.log(req.body);
     const data = req.body;
     if (!data.startDate.includes("T00")) {
       data.startDate = data.startDate + "T00:00:00Z";
@@ -72,6 +70,14 @@ exports.editWork = async (req, res, next) => {
     if (!data.endDate.includes("T00")) {
       data.endDate = data.endDate + "T00:00:00Z";
     }
+    if (typeof data.isOnsite != "boolean") {
+      if (+data.isOnsite) {
+        data.isOnsite = true;
+      } else {
+        data.isOnsite = false;
+      }
+    }
+
     const editedWork = await prisma.work.update({
       where: {
         id: data.id,
@@ -81,27 +87,27 @@ exports.editWork = async (req, res, next) => {
         price: +data.price,
         startDate: data.startDate,
         endDate: data.endDate,
-        isOnsite: +data.isOnsite,
-        addressLat: data.addressLat,
-        addressLong: data.addressLong,
+        isOnsite: data.isOnsite,
+        addressName: data.addressName,
+        addressLat: `${data.addressLat}`,
+        addressLong: `${data.addressLong}`,
       },
       include: {
         challenger: true,
         category: true,
       },
     });
-    // console.log(value);
     res.status(201).json({ editedWork });
   } catch (err) {
     next(err);
   }
 };
 
-exports.cancleWork = async (req, res, next) => {
+exports.cancelWork = async (req, res, next) => {
   try {
-    console.log("first");
     const { workId } = req.params;
-    const cancleWork = await prisma.work.update({
+    console.log(workId);
+    const cancelWork = await prisma.work.update({
       where: {
         id: +workId,
       },
@@ -113,9 +119,9 @@ exports.cancleWork = async (req, res, next) => {
         category: true,
       },
     });
-    res.status(201).json({ cancleWork });
+    res.status(201).json({ cancelWork });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -178,7 +184,6 @@ exports.deleteWork = async (req, res, next) => {
 exports.createworkCategories = async (req, res, next) => {
   try {
     const value = req.body;
-    console.log(value);
     const workCategories = await prisma.workCategories.create({
       data: {
         category: value.category,
@@ -193,8 +198,8 @@ exports.createworkCategories = async (req, res, next) => {
 exports.getAllCategories = async (req, res, next) => {
   try {
     const allCategories = await prisma.workCategories.findMany({});
-    console.log(allCategories);
-    res.status(201).json({ allCategories });
+
+    res.status(200).json({ allCategories });
   } catch (error) {
     next(error);
   }
@@ -261,7 +266,6 @@ exports.getSignWork = async (req, res, next) => {
       },
     });
     res.status(200).json({ mySignWork });
-    // console.log(data);
   } catch (error) {
     next(error);
   }
@@ -301,28 +305,9 @@ exports.updatereview = async (req, res, next) => {
   }
 };
 
-exports.cancelWork = async (req, res, next) => {
-  try {
-    const work = req.params;
-    const rejectwork = await prisma.work.update({
-      where: {
-        id: +work.id,
-      },
-      data: {
-        statusWork: STATUS_WORK_CANCEL,
-      },
-    });
-    res.status(201).json({ rejectwork });
-  } catch (err) {
-    next(err);
-  }
-};
-
 exports.makeDealWork = async (req, res, next) => {
   try {
     const { workId, workStatus, workerId } = req.body;
-    console.log(req.body);
-    console.log(req.user);
     const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
     if (!foundWork) {
       return createError("not found work", 401);
@@ -354,10 +339,6 @@ exports.makeDealWork = async (req, res, next) => {
         }),
       ]);
 
-    console.log(updateStatus, "A");
-    console.log(createTransaction, "B");
-    console.log(updateWallet, "C");
-
     res.status(201).json({ updateStatus, createTransaction, updateWallet });
   } catch (err) {
     next(err);
@@ -367,15 +348,20 @@ exports.makeDealWork = async (req, res, next) => {
 exports.acceptWork = async (req, res, next) => {
   try {
     const { workId, workStatus, workerId } = req.body;
-    console.log(req.body);
-    console.log(req.user);
     const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
     if (!foundWork) {
       return createError("not found work", 401);
     }
+    let fee = (+foundWork.price * 0.05).toFixed(2);
+
     const foundOwner = await prisma.user.findFirst({
       where: { id: req.user.id },
     });
+
+    const foundSystem = await prisma.authUser.findFirst({
+      where: { userType: "system" },
+    });
+
     if (!foundOwner) {
       return createError("not found user", 401);
     }
@@ -384,20 +370,25 @@ exports.acceptWork = async (req, res, next) => {
         where: { id: foundWork.id },
         data: { statusWork: workStatus, workerId },
       }),
-      prisma.transaction.create({
-        data: {
-          type: TRANSACTIONTYEP_RECIEVE,
-          amount: foundWork.price,
-          status: TRANSACTIONSTATUS_PENDING,
-          userId: +workerId,
-          workId: +workId,
-        },
+      prisma.transaction.createMany({
+        data: [
+          {
+            type: TRANSACTIONTYEP_RECIEVE,
+            amount: +foundWork.price - fee,
+            status: TRANSACTIONSTATUS_PENDING,
+            userId: +workerId,
+            workId: +workId,
+          },
+          {
+            type: TRANSACTIONTYEP_RECIEVE,
+            amount: fee,
+            status: TRANSACTIONSTATUS_PENDING,
+            userId: foundSystem.id,
+            workId: +workId,
+          },
+        ],
       }),
     ]);
-
-    console.log(updateStatus, "A");
-    console.log(createTransaction, "B");
-
     res.status(201).json({ updateStatus, createTransaction });
   } catch (err) {
     next(err);
@@ -406,6 +397,45 @@ exports.acceptWork = async (req, res, next) => {
 
 exports.rejectWork = async (req, res, next) => {
   try {
+    const foundWork = await prisma.work.findFirst({
+      where: { id: +req.body.id },
+    });
+    if (!foundWork) {
+      return createError("notfound work", 400);
+    }
+    const foundOwner = await prisma.user.findFirst({
+      where: { id: foundWork.ownerId },
+    });
+    const foundTransaction = await prisma.transaction.findFirst({
+      where: {
+        userId: foundWork.ownerId,
+        workId: foundWork.id,
+      },
+    });
+
+    const [updateWork, deleteOwnerTransaction, updateWallet] =
+      await prisma.$transaction([
+        prisma.work.update({
+          where: {
+            id: foundWork.id,
+          },
+          data: {
+            statusWork: STATUS_WORK_FINDING,
+            workerId: null,
+          },
+        }),
+        prisma.transaction.delete({
+          where: { id: foundTransaction.id },
+        }),
+        prisma.user.update({
+          where: { id: foundOwner.id },
+          data: {
+            wallet: +foundOwner.wallet + +foundWork.price,
+          },
+        }),
+      ]);
+
+    res.status(201).json({ message: "reject work" });
   } catch (err) {
     next(err);
   }

@@ -144,7 +144,12 @@ exports.createShowCase = async (req, res, next) => {
 
 exports.getAllShowCase = async (req, res, next) => {
   try {
-    const getShowCase = await prisma.showCase.findMany({});
+    const { id } = req.params;
+    const getShowCase = await prisma.showCase.findMany({
+      where: {
+        userId: +id,
+      },
+    });
     res.status(201).json({ getShowCase });
   } catch (err) {
     next(err);
@@ -217,6 +222,31 @@ exports.createReport = async (req, res, next) => {
     res.status(201).json({ crateReport });
   } catch (err) {
     next(err);
+  }
+};
+
+exports.getReviewById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userReviews = await prisma.review.findMany({
+      where: {
+        reviewerId: +id,
+      },
+      include: {
+        reviewBy: {
+          select: {
+            profileImage: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+    console.log(userReviews);
+
+    res.status(200).json({ userReviews });
+  } catch (error) {
+    next(error);
   }
 };
 

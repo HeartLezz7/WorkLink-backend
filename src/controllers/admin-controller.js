@@ -8,7 +8,7 @@ const prisma = require("../models/prisma");
 const createError = require("../utils/create-error");
 const validator = require("../validators/validate-schema");
 const { userType } = require("@prisma/client");
-const { TRANSACTIONSTATUS_APPROVE } = require('../configs/constants')
+const { TRANSACTIONSTATUS_APPROVE } = require("../configs/constants");
 
 exports.register = async (req, res, next) => {
   try {
@@ -45,7 +45,6 @@ exports.register = async (req, res, next) => {
         authUser: true,
       },
     });
-    console.log(createAdmin);
 
     const payload = { userId: createAdmin.id };
     const accessToken = jwt.sign(
@@ -108,55 +107,51 @@ exports.login = async (req, res, next) => {
 
 exports.withDrawCheck = async (req, res, next) => {
   try {
-
-    const value = req.body
+    const value = req.body;
 
     const foundTransaction = await prisma.transaction.create({
       data: {
         type: value.Type,
         amount: value.Amount,
         status: TRANSACTIONSTATUS_APPROVE,
-        userId: value.id
-      }
-    })
+        userId: value.id,
+      },
+    });
 
-    res.status(200).json({ foundTransaction })
-
+    res.status(200).json({ foundTransaction });
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 exports.depositCheck = async (req, res, next) => {
   try {
-    const value = req.body
+    const value = req.body;
 
     const findTransaction = await prisma.transaction.create({
       data: {
         type: value.Type,
         amount: value.Amount,
         status: TRANSACTIONSTATUS_APPROVE,
-        userId: value.id
-      }
-    })
+        userId: value.id,
+      },
+    });
 
-    res.status(200).json({ MSG: "OK" })
-
+    res.status(200).json({ MSG: "OK" });
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 exports.findApprove = async (req, res, next) => {
   try {
     const statusApprove = await prisma.transaction.findMany({
       where: {
-        status: TRANSACTIONSTATUS_APPROVE
-      }
-    })
-    res.status(200).json({ MSG: "OK", statusApprove })
-  }
-  catch (error) {
+        status: TRANSACTIONSTATUS_APPROVE,
+      },
+    });
+    res.status(200).json({ MSG: "OK", statusApprove });
+  } catch (error) {
     console.log(error);
   }
-}
+};

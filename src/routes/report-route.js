@@ -14,17 +14,13 @@ router.post(
 router.get("/", authenticatedMiddleware, reportController.getAllReport);
 
 router.patch(
-  "/submitReport",
-  //   authenticatedMiddleware,
-  reportController.submitReport
-);
-
-router.patch(
   "/changestatus/:id",
   authenticatedMiddleware,
   reportController.changeStatus
 );
 
-router.delete("/delete/:id", authenticatedMiddleware, reportController.clear);
+router.patch("/isclear/:id", authenticatedMiddleware, reportController.clear);
+
+router.get("/isclear", authenticatedMiddleware, reportController.getisClear);
 
 module.exports = router;

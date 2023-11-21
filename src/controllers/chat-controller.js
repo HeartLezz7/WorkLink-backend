@@ -3,15 +3,13 @@ const createError = require("../utils/create-error");
 
 exports.getAllChatRoom = async (req, res, next) => {
   try {
-    const allChatRoom = await prisma.chatRoom.findMany({
-      where: {
-        OR: [{ createrId: req.user.id }, { dealerId: req.user.id }],
+    const allChatRoom = await prisma.chatMessages.findMany({
+      include: {
+        chatRoom: { include: { dealer: true, creater: true } },
       },
-      include: { dealer: true, creater: true },
-      orderBy: { id: "desc" },
+      orderBy: { createdAt: "desc" },
+      distinct: ["chatRoomId"],
     });
-    console.log(allChatRoom, "all");
-
     res.status(200).json({ allChatRoom });
   } catch (err) {
     next(err);
@@ -20,8 +18,6 @@ exports.getAllChatRoom = async (req, res, next) => {
 
 exports.createRoom = async (req, res, next) => {
   try {
-    console.log(req.body);
-    console.log(req.user);
     const foundChatRoom = await prisma.chatRoom.findFirst({
       where: {
         dealerId: +req.body.dealerId,
@@ -31,7 +27,9 @@ exports.createRoom = async (req, res, next) => {
     });
     if (foundChatRoom) {
       createError("already have room", 400);
-      return res.status(403).json({ message: "already havee chat room" });
+      return res
+        .status(403)
+        .json({ message: "already havee chat room", foundChatRoom });
     }
     const chatRoom = await prisma.chatRoom.create({
       data: {
