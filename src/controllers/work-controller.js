@@ -500,8 +500,7 @@ exports.getlatlng = async (req,res,next)=>{
         addressLong:true
       }
     });
-   
-    console.log(latlng,"xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    // console.log(latlng,"xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     res.status(200).json({ latlng });
   }catch(err){
     console.log(error)
