@@ -1,14 +1,17 @@
-const prisma = require("../models/prisma");
-const createError = require("../utils/create-error");
+const prisma = require('../models/prisma');
+const createError = require('../utils/create-error');
 
 exports.getAllChatRoom = async (req, res, next) => {
   try {
     const allChatRoom = await prisma.chatMessages.findMany({
+      where: {
+        OR: [{ receiverId: req.user.id }, { senderId: req.user.id }],
+      },
       include: {
         chatRoom: { include: { dealer: true, creater: true } },
       },
-      orderBy: { createdAt: "desc" },
-      distinct: ["chatRoomId"],
+      orderBy: { createdAt: 'desc' },
+      distinct: ['chatRoomId'],
     });
     res.status(200).json({ allChatRoom });
   } catch (err) {
@@ -26,10 +29,10 @@ exports.createRoom = async (req, res, next) => {
       },
     });
     if (foundChatRoom) {
-      createError("already have room", 400);
+      createError('already have room', 400);
       return res
         .status(403)
-        .json({ message: "already havee chat room", foundChatRoom });
+        .json({ message: 'already havee chat room', foundChatRoom });
     }
     const chatRoom = await prisma.chatRoom.create({
       data: {
@@ -38,7 +41,7 @@ exports.createRoom = async (req, res, next) => {
         createrId: req.user.id,
         chatMessage: {
           create: {
-            message: "Nice to meet you",
+            message: 'Nice to meet you',
             senderId: req.user.id,
             receiverId: +req.body.dealerId,
           },
@@ -48,7 +51,7 @@ exports.createRoom = async (req, res, next) => {
         chatMessage: true,
       },
     });
-    res.status(201).json({ message: "hello", chatRoom });
+    res.status(201).json({ message: 'hello', chatRoom });
   } catch (err) {
     next(err);
   }
