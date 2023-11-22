@@ -104,6 +104,7 @@ exports.getAllTransaction = async (req, res, next) => {
             firstName: true,
             wallet: true,
             lastName: true,
+            profileImage: true,
             authUser: {
               select: {
                 email: true,
