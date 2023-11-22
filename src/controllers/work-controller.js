@@ -7,13 +7,13 @@ const {
   TRANSACTIONTYEP_RECIEVE,
   TRANSACTIONSTATUS_APPROVE,
   STATUS_WORK_SUCCESS,
-} = require("../configs/constants");
-const prisma = require("../models/prisma");
-const fs = require("fs/promises");
-const { upload } = require("../utils/cloundinary-service");
-const createError = require("../utils/create-error");
-const { picture } = require("../configs/cloudinary");
-const { date } = require("joi");
+} = require('../configs/constants');
+const prisma = require('../models/prisma');
+const fs = require('fs/promises');
+const { upload } = require('../utils/cloundinary-service');
+const createError = require('../utils/create-error');
+const { picture } = require('../configs/cloudinary');
+const { date } = require('joi');
 
 exports.createWork = async (req, res, next) => {
   try {
@@ -24,10 +24,10 @@ exports.createWork = async (req, res, next) => {
       data.workImage = url;
     }
     if (data.startDate) {
-      data.startDate = data.startDate + "T00:00:00Z";
+      data.startDate = data.startDate + 'T00:00:00Z';
     }
     if (data.endDate) {
-      data.endDate = data.endDate + "T00:00:00Z";
+      data.endDate = data.endDate + 'T00:00:00Z';
     }
     if (+data.isOnsite) {
       data.isOnsite = true;
@@ -64,13 +64,13 @@ exports.createWork = async (req, res, next) => {
 exports.editWork = async (req, res, next) => {
   try {
     const data = req.body;
-    if (!data.startDate.includes("T00")) {
-      data.startDate = data.startDate + "T00:00:00Z";
+    if (!data.startDate.includes('T00')) {
+      data.startDate = data.startDate + 'T00:00:00Z';
     }
-    if (!data.endDate.includes("T00")) {
-      data.endDate = data.endDate + "T00:00:00Z";
+    if (!data.endDate.includes('T00')) {
+      data.endDate = data.endDate + 'T00:00:00Z';
     }
-    if (typeof data.isOnsite != "boolean") {
+    if (typeof data.isOnsite != 'boolean') {
       if (+data.isOnsite) {
         data.isOnsite = true;
       } else {
@@ -133,7 +133,7 @@ exports.getAllWork = async (req, res, next) => {
         category: true,
       },
       orderBy: {
-        updatedAt: "desc",
+        updatedAt: 'desc',
       },
     });
     res.status(201).json({ allWork });
@@ -215,7 +215,7 @@ exports.createChallenger = async (req, res, next) => {
     });
 
     if (findWorkid) {
-      return next(createError("You have Submit this workID"));
+      return next(createError('You have Submit this workID'));
     }
 
     const createChallenger = await prisma.challenger.create({
@@ -225,7 +225,7 @@ exports.createChallenger = async (req, res, next) => {
       },
     });
     res.status(200).json({
-      Message: "Success Create Challenger /work/challenger/:workid",
+      Message: 'Success Create Challenger /work/challenger/:workid',
       createChallenger,
     });
   } catch (error) {
@@ -242,7 +242,7 @@ exports.deleteChallenger = async (req, res, next) => {
       },
     });
     if (!existChallenger) {
-      return res.status(404).json({ error: "Challenger not found" });
+      return res.status(404).json({ error: 'Challenger not found' });
     }
     const deleteChallenger = await prisma.challenger.delete({
       where: {
@@ -310,13 +310,13 @@ exports.makeDealWork = async (req, res, next) => {
     const { workId, workStatus, workerId } = req.body;
     const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
     if (!foundWork) {
-      return createError("not found work", 401);
+      return createError('not found work', 401);
     }
     const foundOwner = await prisma.user.findFirst({
       where: { id: req.user.id },
     });
     if (!foundOwner) {
-      return createError("not found user", 401);
+      return createError('not found user', 401);
     }
     const [updateStatus, createTransaction, updateWallet] =
       await prisma.$transaction([
@@ -350,7 +350,7 @@ exports.acceptWork = async (req, res, next) => {
     const { workId, workStatus, workerId } = req.body;
     const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
     if (!foundWork) {
-      return createError("not found work", 401);
+      return createError('not found work', 401);
     }
     let fee = (+foundWork.price * 0.05).toFixed(2);
 
@@ -359,11 +359,11 @@ exports.acceptWork = async (req, res, next) => {
     });
 
     const foundSystem = await prisma.authUser.findFirst({
-      where: { userType: "system" },
+      where: { userType: 'system' },
     });
 
     if (!foundOwner) {
-      return createError("not found user", 401);
+      return createError('not found user', 401);
     }
     const [updateStatus, createTransaction] = await prisma.$transaction([
       prisma.work.update({
@@ -398,10 +398,10 @@ exports.acceptWork = async (req, res, next) => {
 exports.rejectWork = async (req, res, next) => {
   try {
     const foundWork = await prisma.work.findFirst({
-      where: { id: +req.body.id },
+      where: { id: +req.body.workId },
     });
     if (!foundWork) {
-      return createError("notfound work", 400);
+      return createError('notfound work', 400);
     }
     const foundOwner = await prisma.user.findFirst({
       where: { id: foundWork.ownerId },
@@ -435,7 +435,7 @@ exports.rejectWork = async (req, res, next) => {
         }),
       ]);
 
-    res.status(201).json({ message: "reject work" });
+    res.status(201).json({ message: 'reject work' });
   } catch (err) {
     next(err);
   }
@@ -446,7 +446,7 @@ exports.updateStatusWork = async (req, res, next) => {
     const { workId, workStatus } = req.body;
     const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
     if (!foundWork) {
-      createError("not found work", 401);
+      createError('not found work', 401);
     }
 
     const updateStatus = await prisma.work.update({
@@ -466,51 +466,66 @@ exports.successWork = async (req, res, next) => {
       where: { workId: +workId },
     });
     if (!foundTransaction) {
-      return createError("not found transaction", 400);
+      return createError('not found transaction', 400);
     }
+
+    const foundSystem = await prisma.authUser.findFirst({
+      where: { userType: 'system' },
+    });
 
     const foundWork = await prisma.work.findFirst({ where: { id: +workId } });
     if (!foundWork) {
-      return createError("not found work", 400);
+      return createError('not found work', 400);
     }
-
+    let fee = (+foundWork.price * 0.05).toFixed(2);
     const worker = await prisma.user.findFirst({
       where: { id: foundWork.workerId },
     });
 
-    const [review, updatedWork, updatedTransactions, updatedUser] =
-      await prisma.$transaction([
-        prisma.review.create({
-          data: {
-            rating,
-            detail,
-            workId: +workId,
-            reviewerId: foundWork.workerId,
-            reviewById: foundWork.ownerId,
-          },
-        }),
-        prisma.work.update({
-          where: {
-            id: +workId,
-          },
-          data: {
-            statusWork: STATUS_WORK_SUCCESS,
-          },
-        }),
-        prisma.transaction.updateMany({
-          where: {
-            workId: foundWork.id,
-          },
-          data: { status: TRANSACTIONSTATUS_APPROVE },
-        }),
-        prisma.user.update({
-          where: {
-            id: foundWork.workerId,
-          },
-          data: { wallet: { increment: +foundWork.price } }, // increment the wallet value
-        }),
-      ]);
-
+    const [
+      review,
+      updatedWork,
+      updatedTransactions,
+      updatedUser,
+      updatedSystem,
+    ] = await prisma.$transaction([
+      prisma.review.create({
+        data: {
+          rating,
+          detail,
+          workId: +workId,
+          reviewerId: foundWork.workerId,
+          reviewById: foundWork.ownerId,
+        },
+      }),
+      prisma.work.update({
+        where: {
+          id: +workId,
+        },
+        data: {
+          statusWork: STATUS_WORK_SUCCESS,
+        },
+      }),
+      prisma.transaction.updateMany({
+        where: {
+          workId: foundWork.id,
+        },
+        data: { status: TRANSACTIONSTATUS_APPROVE },
+      }),
+      prisma.user.update({
+        where: {
+          id: foundWork.workerId,
+        },
+        data: { wallet: { increment: +foundWork.price - fee } }, // increment the wallet value
+      }),
+      prisma.user.update({
+        where: {
+          id: foundSystem.id,
+        },
+        data: { wallet: { increment: +fee } }, // increment the wallet value
+      }),
+    ]);
+    // console.log(updatedSystem, 'SYSSSSSSSSSSSSS');
     res
       .status(201)
       .json({ review, updatedWork, updatedTransactions, updatedUser });
@@ -519,20 +534,21 @@ exports.successWork = async (req, res, next) => {
   }
 };
 
-exports.getlatlng = async (req,res,next)=>{
-  try{
+exports.getlatlng = async (req, res, next) => {
+  try {
     const latlng = await prisma.work.findMany({
-      where:{
-        isOnsite:true,
-        statusWork:STATUS_WORK_FINDING
-      },select:{
-        addressLat:true,
-        addressLong:true
-      }
+      where: {
+        isOnsite: true,
+        statusWork: STATUS_WORK_FINDING,
+      },
+      select: {
+        addressLat: true,
+        addressLong: true,
+      },
     });
     // console.log(latlng,"xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     res.status(200).json({ latlng });
-  }catch(err){
-    console.log(error)
+  } catch (err) {
+    console.log(error);
   }
-}
+};
