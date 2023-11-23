@@ -277,6 +277,9 @@ exports.getalluser = async (req, res, next) => {
       include: {
         user: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
     res.status(201).json({ alluser });
   } catch (err) {
