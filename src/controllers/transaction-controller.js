@@ -86,6 +86,9 @@ exports.pendingStatus = async (req, res, next) => {
           },
         },
       },
+      orderBy: {
+        updatedAt: "desc",
+      },
     });
     res.status(201).json({ getpendding });
   } catch (error) {
@@ -113,6 +116,9 @@ exports.getAllTransaction = async (req, res, next) => {
             },
           },
         },
+      },
+      orderBy: {
+        updatedAt: "desc",
       },
     });
     res.status(201).json({ alltransaction });

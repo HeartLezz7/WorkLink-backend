@@ -7,6 +7,7 @@ const {
   TRANSACTIONTYEP_RECIEVE,
   TRANSACTIONSTATUS_APPROVE,
   STATUS_WORK_SUCCESS,
+  STATUS_WORK_ACCEPTDEAL,
 } = require("../configs/constants");
 const prisma = require("../models/prisma");
 const fs = require("fs/promises");
@@ -438,6 +439,22 @@ exports.rejectWork = async (req, res, next) => {
     res.status(201).json({ message: "reject work" });
   } catch (err) {
     next(err);
+  }
+};
+
+exports.rejectbyAdmin = async (req, res, next) => {
+  try {
+    const reject = await prisma.work.update({
+      where: {
+        id: +req.params.id,
+      },
+      data: {
+        statusWork: STATUS_WORK_ACCEPTDEAL,
+      },
+    });
+    res.status(201).json({ reject });
+  } catch (error) {
+    next(error);
   }
 };
 

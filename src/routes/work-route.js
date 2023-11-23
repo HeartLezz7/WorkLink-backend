@@ -47,5 +47,10 @@ router.patch("/makeDeal", authenticatedMiddleware, workController.makeDealWork);
 router.patch("/acceptDeal", authenticatedMiddleware, workController.acceptWork);
 router.patch("/rejectDeal", authenticatedMiddleware, workController.rejectWork);
 router.patch("/success", authenticatedMiddleware, workController.successWork);
+router.patch(
+  "/reject/id",
+  authenticatedMiddleware,
+  workController.rejectbyAdmin
+);
 
 module.exports = router;
