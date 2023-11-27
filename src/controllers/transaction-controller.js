@@ -11,7 +11,6 @@ const fs = require("fs/promises");
 exports.createTransaction = async (req, res, next) => {
   try {
     if (req.file?.path) {
-      // console.log(req.file.path);
       const url = await upload(req.file.path);
 
       req.body.slipImage = url;
@@ -27,7 +26,6 @@ exports.createTransaction = async (req, res, next) => {
           userId: req.user.id,
         },
       });
-      console.log(transaction);
       res.status(201).json({
         message: "Success create transaction from /transaction",
         transaction,
@@ -234,7 +232,6 @@ exports.withdraw = async (req, res, next) => {
       req.body.slipImage = url;
     }
     const value = req.body;
-    console.log(value);
     const deposit = await prisma.transaction.update({
       where: {
         id: +req.params.id,
@@ -244,7 +241,6 @@ exports.withdraw = async (req, res, next) => {
         status: TRANSACTIONSTATUS_APPROVE,
       },
     });
-    console.log(deposit);
     res.status(201).json({ deposit });
   } catch (error) {
     next(error);

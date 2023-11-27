@@ -35,7 +35,6 @@ exports.register = async (req, res, next) => {
         authUser: true,
       },
     });
-    console.log(user);
 
     const payload = { userId: user.id };
     const accessToken = jwt.sign(
@@ -132,7 +131,6 @@ exports.loginGoogle = async (req, res, next) => {
           authUser: true,
         },
       });
-      console.log(google);
 
       const payload = { userId: google.id };
       const accessToken = jwt.sign(

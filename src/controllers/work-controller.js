@@ -107,7 +107,6 @@ exports.editWork = async (req, res, next) => {
 exports.cancelWork = async (req, res, next) => {
   try {
     const { workId } = req.params;
-    console.log(workId);
     const cancelWork = await prisma.work.update({
       where: {
         id: +workId,
@@ -542,7 +541,6 @@ exports.successWork = async (req, res, next) => {
         data: { wallet: { increment: +fee } }, // increment the wallet value
       }),
     ]);
-    // console.log(updatedSystem, 'SYSSSSSSSSSSSSS');
     res
       .status(201)
       .json({ review, updatedWork, updatedTransactions, updatedUser });
@@ -563,7 +561,6 @@ exports.getlatlng = async (req, res, next) => {
         addressLong: true,
       },
     });
-    // console.log(latlng,"xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
     res.status(200).json({ latlng });
   } catch (err) {
     console.log(error);

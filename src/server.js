@@ -20,7 +20,6 @@ const onlineUser = {};
 io.use((socket, next) => {
   const userId = socket.handshake.auth.id;
   onlineUser[userId] = socket.id;
-  console.log(onlineUser, "onlineUser");
   next();
 });
 

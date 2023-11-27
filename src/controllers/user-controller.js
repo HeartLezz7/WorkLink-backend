@@ -7,7 +7,6 @@ const createError = require("../utils/create-error");
 exports.validateUser = async (req, res, next) => {
   try {
     const value = req.body;
-    // console.log(value);
     const response = {};
     if (req.file?.path) {
       const url = await upload(req.file.path);
@@ -80,8 +79,6 @@ exports.getUserProfileById = async (req, res, next) => {
 // hong edit complete
 exports.updateProfile = async (req, res, next) => {
   try {
-    console.log(req.body);
-
     if (req.file?.path) {
       const url = await upload(req.file.path);
 
@@ -116,7 +113,6 @@ exports.updateProfile = async (req, res, next) => {
 exports.createShowCase = async (req, res, next) => {
   try {
     const value = req.body;
-    console.log(req.user);
     const response = {};
     if (req.file) {
       const url = await upload(req.file.path);
@@ -129,7 +125,6 @@ exports.createShowCase = async (req, res, next) => {
         userId: req.user.id,
       },
     });
-    console.log(createCase);
     res
       .status(201)
       .json({ message: "Success showcase /user/createShowcase", createCase });
@@ -182,7 +177,6 @@ exports.editShowCase = async (req, res, next) => {
   try {
     const { id, description } = req.body;
     if (req.file?.path) {
-      // console.log(req.file.path);
       const url = await upload(req.file.path);
       req.body.imagePicture = url;
     }
@@ -242,7 +236,6 @@ exports.getReviewById = async (req, res, next) => {
         },
       },
     });
-    console.log(userReviews);
 
     res.status(200).json({ userReviews });
   } catch (error) {
